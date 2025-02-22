@@ -23,14 +23,14 @@ func NewAggreator(committee core.Committee, sigService *crypto.SigService) *Aggr
 	return a
 }
 
-func (a *Aggreator) addVote(vote *Vote) (bool, []byte, error) {
-	items, ok := a.votes[vote.Epoch] //检查这个轮次是否已经生成了vote聚合器
-	if !ok {
-		items = NewVoteAggreator()
-		a.votes[vote.Epoch] = items
-	}
-	return items.append(a.committee, a.sigService, vote)
-}
+// func (a *Aggreator) addVote(vote *Vote) (bool, []byte, error) {
+// 	items, ok := a.votes[vote.Epoch] //检查这个轮次是否已经生成了vote聚合器
+// 	if !ok {
+// 		items = NewVoteAggreator()
+// 		a.votes[vote.Epoch] = items
+// 	}
+// 	return items.append(a.committee, a.sigService, vote)
+// }
 
 func (a *Aggreator) addCoinShare(coinShare *CoinShare) (bool, int64, error) {
 	items, ok := a.coins[coinShare.Epoch]
@@ -58,21 +58,21 @@ func NewVoteAggreator() *VoteAggreator {
 	}
 }
 
-func (v *VoteAggreator) append(committee core.Committee, sigService *crypto.SigService, vote *Vote) (bool, []byte, error) {
-	if _, ok := v.Used[vote.Author]; ok {
-		return false, []byte{}, core.ErrOneMoreMessage(vote.MsgType(), vote.Epoch, 0, vote.Author)
-	}
-	v.Shares = append(v.Shares, vote.Signature)      //把部分签名加入到部分签名集合中
-	if len(v.Shares) == committee.HightThreshold() { //得到完整的fullsignature 她的本质是byte[]
-		data, err := crypto.CombineIntactTSPartial(v.Shares, sigService.ShareKey, vote.Hash())
-		if err != nil {
-			logger.Error.Printf("Combine signature error: %v\n", err)
-			return false, []byte{}, err
-		}
-		return true, data, nil
-	}
-	return false, []byte{}, nil
-}
+// func (v *VoteAggreator) append(committee core.Committee, sigService *crypto.SigService, vote *Vote) (bool, []byte, error) {
+// 	if _, ok := v.Used[vote.Author]; ok {
+// 		return false, []byte{}, core.ErrOneMoreMessage(vote.MsgType(), vote.Epoch, 0, vote.Author)
+// 	}
+// 	v.Shares = append(v.Shares, vote.Signature)      //把部分签名加入到部分签名集合中
+// 	if len(v.Shares) == committee.HightThreshold() { //得到完整的fullsignature 她的本质是byte[]
+// 		data, err := crypto.CombineIntactTSPartial(v.Shares, sigService.ShareKey, vote.Hash())
+// 		if err != nil {
+// 			logger.Error.Printf("Combine signature error: %v\n", err)
+// 			return false, []byte{}, err
+// 		}
+// 		return true, data, nil
+// 	}
+// 	return false, []byte{}, nil
+// }
 
 type CoinAggreator struct {
 	Used   map[core.NodeID]struct{}

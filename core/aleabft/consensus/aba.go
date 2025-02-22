@@ -20,27 +20,26 @@ type ABABack struct {
 }
 
 type ABA struct {
-	c            *Core
-	Epoch        int64
-	Round        int64
-	prepareMutex sync.Mutex
-	maxIndex     int64 //prpare阶段收到的最大整数
-	prepareCnt   int64 //prepare计数器
-	valMutex     sync.Mutex
-	valOdd       map[int64]int64 //奇数
-	valEven      map[int64]int64
-	valCnt       map[int64]map[int64]int64
-	flagMutex    sync.Mutex
-	muxFlag      map[int64]struct{}
-	yesFlag      map[int64]struct{}
-	noFlag       map[int64]struct{}
-	muxFinFlag   map[int64]struct{} //已经收到2f+1个mutex不需要再处理mutex
-	muxMutex     sync.Mutex
-	muxCnt       map[int64]map[int64]int64
-	muxOdd       map[int64]int64
-	muxEven      map[int64]int64
-	halt         atomic.Bool
-	abaCallBack  chan *ABABack
+	c           *Core
+	Epoch       int64
+	Round       int64
+	maxIndex    int64 //prpare阶段收到的最大整数
+	prepareCnt  int64 //prepare计数器
+	valMutex    sync.Mutex
+	valOdd      map[int64]int64 //奇数
+	valEven     map[int64]int64
+	valCnt      map[int64]map[int64]int64
+	flagMutex   sync.Mutex
+	muxFlag     map[int64]struct{}
+	yesFlag     map[int64]struct{}
+	noFlag      map[int64]struct{}
+	muxFinFlag  map[int64]struct{} //已经收到2f+1个mutex不需要再处理mutex
+	muxMutex    sync.Mutex
+	muxCnt      map[int64]map[int64]int64
+	muxOdd      map[int64]int64
+	muxEven     map[int64]int64
+	halt        atomic.Bool
+	abaCallBack chan *ABABack
 }
 
 func NewABA(c *Core, Epoch int64, Round int64, abaCallBack chan *ABABack) *ABA {

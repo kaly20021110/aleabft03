@@ -20,12 +20,12 @@ type Core struct {
 	Commitor      *Committor //用于提交提案block
 	Epoch         int64
 	LeaderEpoch   int64
-	abaInstances  map[int64]map[int64]*ABA        //aba实例的二维数组 ID epoch
-	boltInstances map[int64]map[core.NodeID]*Bolt //Bolt实例的二维数组 ID epoch
-	//prepareSet    map[int64][]*Prepare             //存储每个Epoch的Prepare消息,没太懂这个prepare消息具体在做什么
-	commitments  map[core.NodeID]map[int64]*Block //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
-	BoltCallBack chan *BoltBack
-	abaCallBack  chan *ABABack
+	abaInstances  map[int64]map[int64]*ABA         //aba实例的二维数组 ID epoch
+	boltInstances map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
+	prepareSet    map[int64][]*Prepare             //存储每个Epoch的Prepare消息,没太懂这个prepare消息具体在做什么
+	commitments   map[core.NodeID]map[int64]*Block //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
+	BoltCallBack  chan *BoltBack
+	abaCallBack   chan *ABABack
 }
 
 func NewCore(
@@ -235,13 +235,11 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 	if c.messageFilter(halt.Epoch) {
 		return nil
 	}
-	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt)
-	return nil
-}
+	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
 
-func (c *Core) processABABack(back *ABABack) error {
-	return c.handleOutput(back.Epoch, back.Leader, back.Val)
-	return nil
+	c.abvanceNextABAEpoch(halt.Epoch + 1)
+
+	return c.handleOutput(halt.Epoch, halt.Leader)
 }
 
 func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //直接提交或者间接提交
@@ -262,7 +260,7 @@ func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //直接提
 			}
 		}
 	}
-	return c.abvanceNextABAEpoch(epoch + 1)
+	return nil
 }
 
 /**************************** Message Handle ********************************/
@@ -320,10 +318,9 @@ func (c *Core) Run() {
 					err = c.handleABAHalt(msg.(*ABAHalt))
 				}
 			}
-		// case boltBack := <-c.BoltCallBack:
-		// 	err = c.processBoltBack(boltBack)
-		case abaBack := <-c.abaCallBack:
-			err = c.processABABack(abaBack)
+			// case boltBack := <-c.BoltCallBack:
+			// 	err = c.processBoltBack(boltBack)
+		default:
 		}
 		if err != nil {
 			logger.Warn.Println(err)

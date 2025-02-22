@@ -44,9 +44,9 @@ func NewBolt(c *Core, Proposer core.NodeID, Epoch int64, boltCallBack chan *Bolt
 }
 
 // 处理提案消息
-func (instance *Bolt) ProcessProposal(p *Proposal) {
+func (instance *Bolt) ProcessProposal(p *Proposal) error {
 	if p.Author != instance.Proposer {
-		return
+		return nil
 	}
 	instance.BMutex.Lock()
 	d := p.B.Hash()
@@ -68,12 +68,12 @@ func (instance *Bolt) ProcessProposal(p *Proposal) {
 	} else {
 		instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
 	}
-	return
+	return nil
 }
 
-func (instance *Bolt) ProcessVote(r *Vote) {
+func (instance *Bolt) ProcessVote(r *Vote) error {
 	if r.Author != instance.Proposer {
-		return
+		return nil
 	}
 	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
 	cnts := len(instance.voteShares[r.Epoch])          //2f+1个vote消息
@@ -82,7 +82,7 @@ func (instance *Bolt) ProcessVote(r *Vote) {
 		data, err := crypto.CombineIntactTSPartial(instance.voteShares[r.Epoch], instance.c.SigService.ShareKey, r.Hash())
 		if err != nil {
 			logger.Error.Printf("Combine signature error: %v\n", err)
-			return
+			return nil
 		}
 		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
 		instance.c.boltInstances[r.Epoch][r.Author].fullSignature = data
@@ -93,12 +93,8 @@ func (instance *Bolt) ProcessVote(r *Vote) {
 
 		proposal.fullSignature = instance.fullSignature
 
-		//这一步好像写错了
-		if instance.c.Name == instance.Proposer {
-			instance.c.Transimtor.RecvChannel() <- proposal
-		} else {
-			instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, proposal)
-		}
+		instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
+		instance.c.Transimtor.RecvChannel() <- proposal
 	}
-	return
+	return nil
 }
