@@ -52,10 +52,10 @@ func NewCore(
 		LeaderEpoch:   int64(name),
 		abaInstances:  make(map[int64]map[int64]*ABA),
 		boltInstances: make(map[int64]map[core.NodeID]*Bolt),
-		//prepareSet:    make(map[int64][]*Prepare),
-		commitments:  make(map[core.NodeID]map[int64]*Block),
-		BoltCallBack: make(chan *BoltBack, 1000),
-		abaCallBack:  make(chan *ABABack, 1000),
+		prepareSet:    make(map[int64][]*Prepare),
+		commitments:   make(map[core.NodeID]map[int64]*Block),
+		BoltCallBack:  make(chan *BoltBack, 1000),
+		abaCallBack:   make(chan *ABABack, 1000),
 	}
 	return core
 }
@@ -177,17 +177,17 @@ func (c *Core) handlePrepare(val *Prepare) error {
 	}
 	c.prepareSet[val.Epoch] = append(c.prepareSet[val.Epoch], val)
 	var maxprepare *Prepare
-	if len(c.prepareSet[val.Epoch]) >= c.Committee.HightThreshold() {
+	if len(c.prepareSet[val.Epoch]) == c.Committee.HightThreshold() {
 		for _, v := range c.prepareSet[val.Epoch] {
 			if v.Epoch > maxprepare.Epoch {
 				maxprepare = v
 			}
 		}
+		//向ABA输入值创建newABAval
+		abaVal, _ := NewABAVal(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), val.Epoch, 0, maxprepare.Epoch, c.SigService)
+		c.Transimtor.Send(c.Name, core.NONE, abaVal)
+		c.Transimtor.RecvChannel() <- abaVal
 	}
-	//向ABA输入值创建newABAval
-	abaVal, _ := NewABAVal(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), val.Epoch, 0, maxprepare.Epoch, c.SigService)
-	c.Transimtor.Send(c.Name, core.NONE, abaVal)
-	c.Transimtor.RecvChannel() <- abaVal
 	return nil
 
 }

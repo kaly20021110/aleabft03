@@ -30,6 +30,9 @@ func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
 	if block == nil {
 		return
 	}
+	if c.commitBlocks[epoch] == nil {
+		c.commitBlocks[epoch] = make(map[core.NodeID]*Block)
+	}
 	c.commitBlocks[epoch][leader] = block
 	for {
 		if block, ok := c.commitBlocks[c.Index][leader]; ok {
