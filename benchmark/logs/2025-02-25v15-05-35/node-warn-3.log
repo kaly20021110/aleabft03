@@ -1,3 +1,0 @@
-[WARN] 2025/02/25 15:05:48.111593 network.go:67: Failed to send message to 127.0.0.1:6000: write tcp 127.0.0.1:56384->127.0.0.1:6000: write: broken pipe 
-[WARN] 2025/02/25 15:05:48.111627 network.go:67: Failed to send message to 127.0.0.1:6000: write tcp 127.0.0.1:56384->127.0.0.1:6000: write: broken pipe 
-[WARN] 2025/02/25 15:05:48.113496 network.go:67: Failed to send message to 127.0.0.1:6000: write tcp 127.0.0.1:56384->127.0.0.1:6000: write: broken pipe 

@@ -67,6 +67,7 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 					for i:=instance.c.abaHeight[p.Author];i<=p.Epoch-2;i++{//直接提交和间接提交
 						instance.c.Commitor.Commit(i, p.Author, instance.c.commitments[p.Author][i])
 					}
+					instance.c.abaHeight[p.Author]=p.Epoch-2
 					//instance.c.Commitor.Commit(p.Epoch-2, p.Author, instance.c.commitments[p.Author][p.Epoch-2])
 				}
 			}
@@ -97,9 +98,7 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 			return nil
 		}
 		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
-		//这个赋值是为了比较QC的正确性，但是这个Bolt可能不存在，可能一直没收到proposal
 		instance.c.getBoltInstance(r.Epoch,r.Author).fullSignature = data
-		//instance.c.boltInstances[r.Epoch][r.Author].fullSignature = data
 		instance.c.Epoch = instance.Epoch + 1
 		block := instance.c.generateBlock(instance.c.Epoch)
 		// 提出新的提案

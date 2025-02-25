@@ -16,10 +16,10 @@ type Core struct {
 	Store         *store.Store
 	TxPool        *pool.Pool
 	Transimtor    *core.Transmitor
-	Aggreator     *Aggreator //用于聚合签名 coin的生成以及vote的聚合
+	Aggreator     *Aggreator //用于聚合签名 coin的生成
 	Commitor      *Committor //用于提交提案block
-	Epoch         int64
-	LeaderEpoch   int64
+	Epoch         int64   //用于CBC
+	LeaderEpoch   int64 	//用于ABA
 	abaHeight     map[core.NodeID]int64//存储每个ABA开始的位置，在ABA结束之前不能提前提交
 	abaInstances  map[int64]map[int64]*ABA         //aba实例的二维数组 ID epoch
 	boltInstances map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
@@ -124,6 +124,9 @@ func (c *Core) generateBlock(epoch int64) *Block {
 func (c *Core) messageFilter(epoch int64) bool {
 	return c.Epoch > epoch
 }
+func (c *Core) abamessageFilter(epoch int64) bool {
+	return c.LeaderEpoch > epoch
+}
 
 /**************************** Utils ********************************/
 /**************************** Message Handle ********************************/
@@ -163,10 +166,13 @@ func (c *Core) handleVote(r *Vote) error {
 func (c *Core) invokeABA() error {
 	lens := 0
 	if blockMap, exists := c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]; exists {
-		lens = len(blockMap)
+		lens = len(blockMap) -1
+		if lens < 0{
+			lens = 0
+		}
 	}
 	//记录每个人在每条队列上的参与ABA的高度
-	c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens)
+	c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens-1)
 	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, int64(lens), c.SigService)
 	c.Transimtor.Send(c.Name, core.NONE, prepare)
 	c.Transimtor.RecvChannel() <- prepare
@@ -177,7 +183,7 @@ func (c *Core) invokeABA() error {
 func (c *Core) handlePrepare(val *Prepare) error {
 	logger.Debug.Printf("Processing  prepare leader %d proposer %d epoch %d \n", val.Author, val.Proposer, val.Epoch)
 
-	if c.messageFilter(val.Epoch) {
+	if c.abamessageFilter(val.Epoch) {
 		return nil
 	}
 	c.prepareSet[val.Epoch] = append(c.prepareSet[val.Epoch], val)
@@ -199,7 +205,7 @@ func (c *Core) handlePrepare(val *Prepare) error {
 
 func (c *Core) handleABAVal(val *ABAVal) error {
 	logger.Debug.Printf("Processing aba val leader %d epoch %d round %d val %d\n", val.Leader, val.Epoch, val.Round, val.Val)
-	if c.messageFilter(val.Epoch) {
+	if c.abamessageFilter(val.Epoch) {
 		return nil
 	}
 
@@ -210,7 +216,7 @@ func (c *Core) handleABAVal(val *ABAVal) error {
 
 func (c *Core) handleABAMux(mux *ABAMux) error {
 	logger.Debug.Printf("Processing aba mux leader %d epoch %d round %d val %d\n", mux.Leader, mux.Epoch, mux.Round, mux.Val)
-	if c.messageFilter(mux.Epoch) {
+	if c.abamessageFilter(mux.Epoch) {
 		return nil
 	}
 
@@ -221,7 +227,7 @@ func (c *Core) handleABAMux(mux *ABAMux) error {
 
 func (c *Core) handleCoinShare(share *CoinShare) error {
 	logger.Debug.Printf("Processing coin share epoch %d round %d ", share.Epoch, share.Round)
-	if c.messageFilter(share.Epoch) {
+	if c.abamessageFilter(share.Epoch) {
 		return nil
 	}
 
@@ -237,33 +243,37 @@ func (c *Core) handleCoinShare(share *CoinShare) error {
 
 func (c *Core) handleABAHalt(halt *ABAHalt) error {
 	logger.Debug.Printf("Processing aba halt leader %d epoch %d in-round %d\n", halt.Leader, halt.Epoch, halt.Round)
-	if c.messageFilter(halt.Epoch) {
+	if c.abamessageFilter(halt.Epoch) {
 		return nil
 	}
 	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
-	return c.handleOutput(halt.Epoch, halt.Leader)
+	return c.handleOutput(halt.Val, halt.Leader)
 }
 
-func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //直接提交或者间接提交
-
-	logger.Error.Printf("aba starting commit epoch %d leader %d\n",epoch,leader)
-	cbc := c.getBoltInstance(epoch, leader)
-	if cbc.BlockHash != nil {
-		if block, err := c.getBlock(*cbc.BlockHash); err != nil {
-			logger.Warn.Println(err)
-			c.Commitor.Commit(epoch, leader, nil)
-		} else {
-			c.Commitor.Commit(epoch, leader, block)
-			if block.Proposer != c.Name {
-				temp := c.getBoltInstance(epoch, c.Name).BlockHash
-				if temp != nil {
-					if block, err := c.getBlock(*temp); err == nil && block != nil {
-						c.TxPool.PutBatch(block.Batch)
+func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //ABA commit只需要决定是commit一个块还是两个块
+	//commit就是只commit一个值
+	//logger.Error.Printf("aba starting commit epoch %d leader %d\n",epoch,leader)
+	//所以当ABA输出值之后，应该将前面所有没有commit的值全部commit掉，如果没有收集到的话就找别人要，那么从哪个地方开始commit呢,上一个abacommit的位置开始
+	for i:=c.abaHeight[leader];i<=epoch;i++{
+		cbc := c.getBoltInstance(i, leader)
+		if cbc.BlockHash != nil {
+			if block, err := c.getBlock(*cbc.BlockHash); err != nil {
+				logger.Warn.Println(err)
+				c.Commitor.Commit(epoch, leader, nil)
+			} else {
+				c.Commitor.Commit(epoch, leader, block)
+				if block.Proposer != c.Name {
+					temp := c.getBoltInstance(epoch, c.Name).BlockHash
+					if temp != nil {
+						if block, err := c.getBlock(*temp); err == nil && block != nil {
+							c.TxPool.PutBatch(block.Batch)
+						}
 					}
 				}
 			}
 		}
 	}
+	
 	c.abvanceNextABAEpoch(epoch + 1)
 	return nil
 }

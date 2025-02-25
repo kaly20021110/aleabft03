@@ -1,0 +1,36 @@
+[INFO] 2025/02/25 20:32:22.435656 pool.go:126: Transaction pool queue capacity set to 10000 
+[INFO] 2025/02/25 20:32:22.435694 pool.go:130: Transaction pool tx size set to 250 
+[INFO] 2025/02/25 20:32:22.435699 pool.go:134: Transaction pool batch size set to 500 
+[INFO] 2025/02/25 20:32:22.435702 pool.go:138: Transaction pool tx rate set to 5000 
+[INFO] 2025/02/25 20:32:22.440732 consensus.go:26: Consensus Node ID: 2
+[INFO] 2025/02/25 20:32:22.440750 consensus.go:30: Consensus DDos: false, Faults: 0 
+[INFO] 2025/02/25 20:32:22.440754 consensus.go:34: Protocol: aleabft
+[INFO] 2025/02/25 20:32:22.440758 consensus.go:38: Honest Node
+[INFO] 2025/02/25 20:32:22.440800 consensus.go:51: Waiting for all nodes to be online...
+[INFO] 2025/02/25 20:32:22.925609 network.go:107: Incoming connection established with 127.0.0.1:35472 
+[INFO] 2025/02/25 20:32:22.927982 network.go:107: Incoming connection established with 127.0.0.1:35484 
+[INFO] 2025/02/25 20:32:22.936395 network.go:107: Incoming connection established with 127.0.0.1:35488 
+[INFO] 2025/02/25 20:32:22.937159 network.go:107: Incoming connection established with 127.0.0.1:35500 
+[INFO] 2025/02/25 20:32:22.941567 node.go:73: Node 2 successfully booted 
+[INFO] 2025/02/25 20:32:22.941627 pool.go:64: Received Batch 2
+[INFO] 2025/02/25 20:32:22.941632 core.go:118: create Block epoch 0 node 2 batch_id 2 
+[INFO] 2025/02/25 20:32:22.943614 network.go:62: Outgoing connection established with 127.0.0.1:6001 
+[INFO] 2025/02/25 20:32:22.943802 network.go:62: Outgoing connection established with 127.0.0.1:6003 
+[INFO] 2025/02/25 20:32:22.943921 network.go:62: Outgoing connection established with 127.0.0.1:6000 
+[INFO] 2025/02/25 20:32:22.946629 network.go:107: Incoming connection established with 127.0.0.1:35506 
+[INFO] 2025/02/25 20:32:22.949275 network.go:107: Incoming connection established with 127.0.0.1:35510 
+[INFO] 2025/02/25 20:32:23.001163 core.go:118: create Block epoch 1 node 2 batch_id 2 
+[INFO] 2025/02/25 20:32:23.001691 commitor.go:51: commit Block epoch 0 node 0 batch_id 0 
+[INFO] 2025/02/25 20:32:23.053842 commitor.go:51: commit Block epoch 1 node 1 batch_id 5 
+[INFO] 2025/02/25 20:32:23.084484 core.go:118: create Block epoch 2 node 2 batch_id 2 
+[INFO] 2025/02/25 20:32:23.095741 commitor.go:51: commit Block epoch 2 node 2 batch_id 2 
+[INFO] 2025/02/25 20:32:23.168361 pool.go:64: Received Batch 6
+[INFO] 2025/02/25 20:32:23.168380 core.go:118: create Block epoch 3 node 2 batch_id 6 
+[INFO] 2025/02/25 20:32:23.222179 pool.go:64: Received Batch 10
+[INFO] 2025/02/25 20:32:23.222199 core.go:118: create Block epoch 4 node 2 batch_id 10 
+[INFO] 2025/02/25 20:32:23.269069 pool.go:64: Received Batch 14
+[INFO] 2025/02/25 20:32:23.269085 core.go:118: create Block epoch 5 node 2 batch_id 14 
+[INFO] 2025/02/25 20:32:23.310493 pool.go:64: Received Batch 18
+[INFO] 2025/02/25 20:32:23.310507 core.go:118: create Block epoch 6 node 2 batch_id 18 
+[INFO] 2025/02/25 20:32:23.387225 pool.go:64: Received Batch 22
+[INFO] 2025/02/25 20:32:23.387241 core.go:118: create Block epoch 7 node 2 batch_id 22 
