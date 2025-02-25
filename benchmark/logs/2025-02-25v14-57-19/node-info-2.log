@@ -1,0 +1,286 @@
+[INFO] 2025/02/25 14:57:21.244510 pool.go:126: Transaction pool queue capacity set to 10000 
+[INFO] 2025/02/25 14:57:21.244564 pool.go:130: Transaction pool tx size set to 250 
+[INFO] 2025/02/25 14:57:21.244570 pool.go:134: Transaction pool batch size set to 500 
+[INFO] 2025/02/25 14:57:21.244574 pool.go:138: Transaction pool tx rate set to 5000 
+[INFO] 2025/02/25 14:57:21.253765 consensus.go:26: Consensus Node ID: 2
+[INFO] 2025/02/25 14:57:21.253793 consensus.go:30: Consensus DDos: false, Faults: 0 
+[INFO] 2025/02/25 14:57:21.253799 consensus.go:34: Protocol: aleabft
+[INFO] 2025/02/25 14:57:21.253803 consensus.go:38: Honest Node
+[INFO] 2025/02/25 14:57:21.253848 consensus.go:51: Waiting for all nodes to be online...
+[INFO] 2025/02/25 14:57:21.735078 network.go:107: Incoming connection established with 127.0.0.1:41666 
+[INFO] 2025/02/25 14:57:21.738270 network.go:107: Incoming connection established with 127.0.0.1:41678 
+[INFO] 2025/02/25 14:57:21.747164 network.go:107: Incoming connection established with 127.0.0.1:41682 
+[INFO] 2025/02/25 14:57:21.747201 network.go:107: Incoming connection established with 127.0.0.1:41690 
+[INFO] 2025/02/25 14:57:21.753097 network.go:107: Incoming connection established with 127.0.0.1:41692 
+[INFO] 2025/02/25 14:57:21.754359 node.go:73: Node 2 successfully booted 
+[INFO] 2025/02/25 14:57:21.754412 pool.go:64: Received Batch 2
+[INFO] 2025/02/25 14:57:21.754418 core.go:118: create Block epoch 0 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:21.756335 network.go:62: Outgoing connection established with 127.0.0.1:6000 
+[INFO] 2025/02/25 14:57:21.756603 network.go:62: Outgoing connection established with 127.0.0.1:6001 
+[INFO] 2025/02/25 14:57:21.756749 network.go:62: Outgoing connection established with 127.0.0.1:6003 
+[INFO] 2025/02/25 14:57:21.759317 network.go:107: Incoming connection established with 127.0.0.1:41702 
+[INFO] 2025/02/25 14:57:21.784372 commitor.go:51: commit Block epoch 0 node 0 batch_id 0 
+[INFO] 2025/02/25 14:57:21.842763 core.go:118: create Block epoch 1 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:21.915835 core.go:118: create Block epoch 2 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:22.002370 core.go:118: create Block epoch 3 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:22.108955 core.go:118: create Block epoch 4 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:22.172410 core.go:118: create Block epoch 5 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:22.240275 core.go:118: create Block epoch 6 node 2 batch_id 2 
+[INFO] 2025/02/25 14:57:22.293159 pool.go:64: Received Batch 6
+[INFO] 2025/02/25 14:57:22.293174 core.go:118: create Block epoch 7 node 2 batch_id 6 
+[INFO] 2025/02/25 14:57:22.380886 pool.go:64: Received Batch 10
+[INFO] 2025/02/25 14:57:22.380905 core.go:118: create Block epoch 8 node 2 batch_id 10 
+[INFO] 2025/02/25 14:57:22.464061 pool.go:64: Received Batch 14
+[INFO] 2025/02/25 14:57:22.464082 core.go:118: create Block epoch 9 node 2 batch_id 14 
+[INFO] 2025/02/25 14:57:22.550516 pool.go:64: Received Batch 18
+[INFO] 2025/02/25 14:57:22.550533 core.go:118: create Block epoch 10 node 2 batch_id 18 
+[INFO] 2025/02/25 14:57:22.664768 pool.go:64: Received Batch 22
+[INFO] 2025/02/25 14:57:22.664786 core.go:118: create Block epoch 11 node 2 batch_id 22 
+[INFO] 2025/02/25 14:57:22.751844 pool.go:64: Received Batch 26
+[INFO] 2025/02/25 14:57:22.751861 core.go:118: create Block epoch 12 node 2 batch_id 26 
+[INFO] 2025/02/25 14:57:22.851930 pool.go:64: Received Batch 30
+[INFO] 2025/02/25 14:57:22.851951 core.go:118: create Block epoch 13 node 2 batch_id 30 
+[INFO] 2025/02/25 14:57:22.907862 pool.go:64: Received Batch 34
+[INFO] 2025/02/25 14:57:22.907891 core.go:118: create Block epoch 14 node 2 batch_id 34 
+[INFO] 2025/02/25 14:57:23.003369 pool.go:64: Received Batch 38
+[INFO] 2025/02/25 14:57:23.003395 core.go:118: create Block epoch 15 node 2 batch_id 38 
+[INFO] 2025/02/25 14:57:23.091232 pool.go:64: Received Batch 42
+[INFO] 2025/02/25 14:57:23.091252 core.go:118: create Block epoch 16 node 2 batch_id 42 
+[INFO] 2025/02/25 14:57:23.171705 pool.go:64: Received Batch 46
+[INFO] 2025/02/25 14:57:23.171728 core.go:118: create Block epoch 17 node 2 batch_id 46 
+[INFO] 2025/02/25 14:57:23.236175 pool.go:64: Received Batch 50
+[INFO] 2025/02/25 14:57:23.236194 core.go:118: create Block epoch 18 node 2 batch_id 50 
+[INFO] 2025/02/25 14:57:23.282845 pool.go:64: Received Batch 54
+[INFO] 2025/02/25 14:57:23.282866 core.go:118: create Block epoch 19 node 2 batch_id 54 
+[INFO] 2025/02/25 14:57:23.353071 pool.go:64: Received Batch 58
+[INFO] 2025/02/25 14:57:23.353093 core.go:118: create Block epoch 20 node 2 batch_id 58 
+[INFO] 2025/02/25 14:57:23.397469 pool.go:64: Received Batch 62
+[INFO] 2025/02/25 14:57:23.397484 core.go:118: create Block epoch 21 node 2 batch_id 62 
+[INFO] 2025/02/25 14:57:23.423660 pool.go:64: Received Batch 66
+[INFO] 2025/02/25 14:57:23.423683 core.go:118: create Block epoch 22 node 2 batch_id 66 
+[INFO] 2025/02/25 14:57:23.494531 pool.go:64: Received Batch 70
+[INFO] 2025/02/25 14:57:23.494547 core.go:118: create Block epoch 23 node 2 batch_id 70 
+[INFO] 2025/02/25 14:57:23.595388 pool.go:64: Received Batch 74
+[INFO] 2025/02/25 14:57:23.595411 core.go:118: create Block epoch 24 node 2 batch_id 74 
+[INFO] 2025/02/25 14:57:23.676299 pool.go:64: Received Batch 78
+[INFO] 2025/02/25 14:57:23.676316 core.go:118: create Block epoch 25 node 2 batch_id 78 
+[INFO] 2025/02/25 14:57:23.798269 pool.go:64: Received Batch 82
+[INFO] 2025/02/25 14:57:23.798288 core.go:118: create Block epoch 26 node 2 batch_id 82 
+[INFO] 2025/02/25 14:57:23.861894 pool.go:64: Received Batch 86
+[INFO] 2025/02/25 14:57:23.861918 core.go:118: create Block epoch 27 node 2 batch_id 86 
+[INFO] 2025/02/25 14:57:23.930901 pool.go:64: Received Batch 90
+[INFO] 2025/02/25 14:57:23.930942 core.go:118: create Block epoch 28 node 2 batch_id 90 
+[INFO] 2025/02/25 14:57:24.051385 pool.go:64: Received Batch 94
+[INFO] 2025/02/25 14:57:24.051413 core.go:118: create Block epoch 29 node 2 batch_id 94 
+[INFO] 2025/02/25 14:57:24.146716 pool.go:64: Received Batch 98
+[INFO] 2025/02/25 14:57:24.146741 core.go:118: create Block epoch 30 node 2 batch_id 98 
+[INFO] 2025/02/25 14:57:24.222022 pool.go:64: Received Batch 102
+[INFO] 2025/02/25 14:57:24.222052 core.go:118: create Block epoch 31 node 2 batch_id 102 
+[INFO] 2025/02/25 14:57:24.293894 pool.go:64: Received Batch 106
+[INFO] 2025/02/25 14:57:24.293908 core.go:118: create Block epoch 32 node 2 batch_id 106 
+[INFO] 2025/02/25 14:57:24.378937 pool.go:64: Received Batch 110
+[INFO] 2025/02/25 14:57:24.378959 core.go:118: create Block epoch 33 node 2 batch_id 110 
+[INFO] 2025/02/25 14:57:24.451805 pool.go:64: Received Batch 114
+[INFO] 2025/02/25 14:57:24.451824 core.go:118: create Block epoch 34 node 2 batch_id 114 
+[INFO] 2025/02/25 14:57:24.500474 pool.go:64: Received Batch 118
+[INFO] 2025/02/25 14:57:24.500490 core.go:118: create Block epoch 35 node 2 batch_id 118 
+[INFO] 2025/02/25 14:57:24.552660 pool.go:64: Received Batch 122
+[INFO] 2025/02/25 14:57:24.552681 core.go:118: create Block epoch 36 node 2 batch_id 122 
+[INFO] 2025/02/25 14:57:24.637911 pool.go:64: Received Batch 126
+[INFO] 2025/02/25 14:57:24.637935 core.go:118: create Block epoch 37 node 2 batch_id 126 
+[INFO] 2025/02/25 14:57:24.736584 pool.go:64: Received Batch 130
+[INFO] 2025/02/25 14:57:24.736597 core.go:118: create Block epoch 38 node 2 batch_id 130 
+[INFO] 2025/02/25 14:57:24.848645 pool.go:64: Received Batch 134
+[INFO] 2025/02/25 14:57:24.848674 core.go:118: create Block epoch 39 node 2 batch_id 134 
+[INFO] 2025/02/25 14:57:24.944856 pool.go:64: Received Batch 138
+[INFO] 2025/02/25 14:57:24.944877 core.go:118: create Block epoch 40 node 2 batch_id 138 
+[INFO] 2025/02/25 14:57:25.036195 pool.go:64: Received Batch 142
+[INFO] 2025/02/25 14:57:25.036222 core.go:118: create Block epoch 41 node 2 batch_id 142 
+[INFO] 2025/02/25 14:57:25.106019 pool.go:64: Received Batch 146
+[INFO] 2025/02/25 14:57:25.106036 core.go:118: create Block epoch 42 node 2 batch_id 146 
+[INFO] 2025/02/25 14:57:25.163138 pool.go:64: Received Batch 150
+[INFO] 2025/02/25 14:57:25.163163 core.go:118: create Block epoch 43 node 2 batch_id 150 
+[INFO] 2025/02/25 14:57:25.256039 pool.go:64: Received Batch 154
+[INFO] 2025/02/25 14:57:25.256062 core.go:118: create Block epoch 44 node 2 batch_id 154 
+[INFO] 2025/02/25 14:57:25.370872 pool.go:64: Received Batch 158
+[INFO] 2025/02/25 14:57:25.370895 core.go:118: create Block epoch 45 node 2 batch_id 158 
+[INFO] 2025/02/25 14:57:25.450529 pool.go:64: Received Batch 162
+[INFO] 2025/02/25 14:57:25.450554 core.go:118: create Block epoch 46 node 2 batch_id 162 
+[INFO] 2025/02/25 14:57:25.541455 pool.go:64: Received Batch 166
+[INFO] 2025/02/25 14:57:25.541478 core.go:118: create Block epoch 47 node 2 batch_id 166 
+[INFO] 2025/02/25 14:57:25.599469 pool.go:64: Received Batch 170
+[INFO] 2025/02/25 14:57:25.599493 core.go:118: create Block epoch 48 node 2 batch_id 170 
+[INFO] 2025/02/25 14:57:25.706822 pool.go:64: Received Batch 174
+[INFO] 2025/02/25 14:57:25.706925 core.go:118: create Block epoch 49 node 2 batch_id 174 
+[INFO] 2025/02/25 14:57:25.812473 pool.go:64: Received Batch 178
+[INFO] 2025/02/25 14:57:25.812489 core.go:118: create Block epoch 50 node 2 batch_id 178 
+[INFO] 2025/02/25 14:57:25.884703 pool.go:64: Received Batch 182
+[INFO] 2025/02/25 14:57:25.884726 core.go:118: create Block epoch 51 node 2 batch_id 182 
+[INFO] 2025/02/25 14:57:26.008439 pool.go:64: Received Batch 186
+[INFO] 2025/02/25 14:57:26.008451 core.go:118: create Block epoch 52 node 2 batch_id 186 
+[INFO] 2025/02/25 14:57:26.082454 pool.go:64: Received Batch 190
+[INFO] 2025/02/25 14:57:26.082477 core.go:118: create Block epoch 53 node 2 batch_id 190 
+[INFO] 2025/02/25 14:57:26.189601 pool.go:64: Received Batch 194
+[INFO] 2025/02/25 14:57:26.189622 core.go:118: create Block epoch 54 node 2 batch_id 194 
+[INFO] 2025/02/25 14:57:26.267671 pool.go:64: Received Batch 198
+[INFO] 2025/02/25 14:57:26.271456 core.go:118: create Block epoch 55 node 2 batch_id 198 
+[INFO] 2025/02/25 14:57:26.322756 pool.go:64: Received Batch 202
+[INFO] 2025/02/25 14:57:26.322776 core.go:118: create Block epoch 56 node 2 batch_id 202 
+[INFO] 2025/02/25 14:57:26.385675 pool.go:64: Received Batch 206
+[INFO] 2025/02/25 14:57:26.385701 core.go:118: create Block epoch 57 node 2 batch_id 206 
+[INFO] 2025/02/25 14:57:26.441805 pool.go:64: Received Batch 210
+[INFO] 2025/02/25 14:57:26.441826 core.go:118: create Block epoch 58 node 2 batch_id 210 
+[INFO] 2025/02/25 14:57:26.560633 pool.go:64: Received Batch 214
+[INFO] 2025/02/25 14:57:26.560661 core.go:118: create Block epoch 59 node 2 batch_id 214 
+[INFO] 2025/02/25 14:57:26.620538 pool.go:64: Received Batch 218
+[INFO] 2025/02/25 14:57:26.620557 core.go:118: create Block epoch 60 node 2 batch_id 218 
+[INFO] 2025/02/25 14:57:26.677566 pool.go:64: Received Batch 222
+[INFO] 2025/02/25 14:57:26.677590 core.go:118: create Block epoch 61 node 2 batch_id 222 
+[INFO] 2025/02/25 14:57:26.745283 pool.go:64: Received Batch 226
+[INFO] 2025/02/25 14:57:26.745306 core.go:118: create Block epoch 62 node 2 batch_id 226 
+[INFO] 2025/02/25 14:57:26.817989 pool.go:64: Received Batch 230
+[INFO] 2025/02/25 14:57:26.818015 core.go:118: create Block epoch 63 node 2 batch_id 230 
+[INFO] 2025/02/25 14:57:26.884610 pool.go:64: Received Batch 234
+[INFO] 2025/02/25 14:57:26.884624 core.go:118: create Block epoch 64 node 2 batch_id 234 
+[INFO] 2025/02/25 14:57:26.985335 pool.go:64: Received Batch 238
+[INFO] 2025/02/25 14:57:26.985353 core.go:118: create Block epoch 65 node 2 batch_id 238 
+[INFO] 2025/02/25 14:57:27.049026 pool.go:64: Received Batch 242
+[INFO] 2025/02/25 14:57:27.049037 core.go:118: create Block epoch 66 node 2 batch_id 242 
+[INFO] 2025/02/25 14:57:27.139296 pool.go:64: Received Batch 246
+[INFO] 2025/02/25 14:57:27.139321 core.go:118: create Block epoch 67 node 2 batch_id 246 
+[INFO] 2025/02/25 14:57:27.192384 pool.go:64: Received Batch 250
+[INFO] 2025/02/25 14:57:27.192402 core.go:118: create Block epoch 68 node 2 batch_id 250 
+[INFO] 2025/02/25 14:57:27.285086 pool.go:64: Received Batch 254
+[INFO] 2025/02/25 14:57:27.285109 core.go:118: create Block epoch 69 node 2 batch_id 254 
+[INFO] 2025/02/25 14:57:27.412099 pool.go:64: Received Batch 258
+[INFO] 2025/02/25 14:57:27.412121 core.go:118: create Block epoch 70 node 2 batch_id 258 
+[INFO] 2025/02/25 14:57:27.456401 pool.go:64: Received Batch 262
+[INFO] 2025/02/25 14:57:27.456417 core.go:118: create Block epoch 71 node 2 batch_id 262 
+[INFO] 2025/02/25 14:57:27.535949 pool.go:64: Received Batch 266
+[INFO] 2025/02/25 14:57:27.535971 core.go:118: create Block epoch 72 node 2 batch_id 266 
+[INFO] 2025/02/25 14:57:27.565929 pool.go:64: Received Batch 270
+[INFO] 2025/02/25 14:57:27.569379 core.go:118: create Block epoch 73 node 2 batch_id 270 
+[INFO] 2025/02/25 14:57:27.633986 pool.go:64: Received Batch 274
+[INFO] 2025/02/25 14:57:27.634076 core.go:118: create Block epoch 74 node 2 batch_id 274 
+[INFO] 2025/02/25 14:57:27.723021 pool.go:64: Received Batch 278
+[INFO] 2025/02/25 14:57:27.723042 core.go:118: create Block epoch 75 node 2 batch_id 278 
+[INFO] 2025/02/25 14:57:27.781584 pool.go:64: Received Batch 282
+[INFO] 2025/02/25 14:57:27.781599 core.go:118: create Block epoch 76 node 2 batch_id 282 
+[INFO] 2025/02/25 14:57:27.829986 pool.go:64: Received Batch 286
+[INFO] 2025/02/25 14:57:27.830007 core.go:118: create Block epoch 77 node 2 batch_id 286 
+[INFO] 2025/02/25 14:57:27.902526 pool.go:64: Received Batch 290
+[INFO] 2025/02/25 14:57:27.902546 core.go:118: create Block epoch 78 node 2 batch_id 290 
+[INFO] 2025/02/25 14:57:27.984304 pool.go:64: Received Batch 294
+[INFO] 2025/02/25 14:57:27.984321 core.go:118: create Block epoch 79 node 2 batch_id 294 
+[INFO] 2025/02/25 14:57:28.040457 pool.go:64: Received Batch 298
+[INFO] 2025/02/25 14:57:28.040473 core.go:118: create Block epoch 80 node 2 batch_id 298 
+[INFO] 2025/02/25 14:57:28.094479 pool.go:64: Received Batch 302
+[INFO] 2025/02/25 14:57:28.094499 core.go:118: create Block epoch 81 node 2 batch_id 302 
+[INFO] 2025/02/25 14:57:28.182769 pool.go:64: Received Batch 306
+[INFO] 2025/02/25 14:57:28.182805 core.go:118: create Block epoch 82 node 2 batch_id 306 
+[INFO] 2025/02/25 14:57:28.288994 pool.go:64: Received Batch 310
+[INFO] 2025/02/25 14:57:28.289015 core.go:118: create Block epoch 83 node 2 batch_id 310 
+[INFO] 2025/02/25 14:57:28.445792 pool.go:64: Received Batch 314
+[INFO] 2025/02/25 14:57:28.445816 core.go:118: create Block epoch 84 node 2 batch_id 314 
+[INFO] 2025/02/25 14:57:28.500615 pool.go:64: Received Batch 318
+[INFO] 2025/02/25 14:57:28.500719 core.go:118: create Block epoch 85 node 2 batch_id 318 
+[INFO] 2025/02/25 14:57:28.606947 pool.go:64: Received Batch 322
+[INFO] 2025/02/25 14:57:28.606959 core.go:118: create Block epoch 86 node 2 batch_id 322 
+[INFO] 2025/02/25 14:57:28.681701 pool.go:64: Received Batch 326
+[INFO] 2025/02/25 14:57:28.681722 core.go:118: create Block epoch 87 node 2 batch_id 326 
+[INFO] 2025/02/25 14:57:28.761495 pool.go:64: Received Batch 330
+[INFO] 2025/02/25 14:57:28.761514 core.go:118: create Block epoch 88 node 2 batch_id 330 
+[INFO] 2025/02/25 14:57:28.793633 pool.go:64: Received Batch 334
+[INFO] 2025/02/25 14:57:28.793652 core.go:118: create Block epoch 89 node 2 batch_id 334 
+[INFO] 2025/02/25 14:57:28.841939 pool.go:64: Received Batch 338
+[INFO] 2025/02/25 14:57:28.841960 core.go:118: create Block epoch 90 node 2 batch_id 338 
+[INFO] 2025/02/25 14:57:28.908725 pool.go:64: Received Batch 342
+[INFO] 2025/02/25 14:57:28.914274 core.go:118: create Block epoch 91 node 2 batch_id 342 
+[INFO] 2025/02/25 14:57:28.950629 pool.go:64: Received Batch 346
+[INFO] 2025/02/25 14:57:28.950643 core.go:118: create Block epoch 92 node 2 batch_id 346 
+[INFO] 2025/02/25 14:57:29.036188 pool.go:64: Received Batch 350
+[INFO] 2025/02/25 14:57:29.036206 core.go:118: create Block epoch 93 node 2 batch_id 350 
+[INFO] 2025/02/25 14:57:29.101837 pool.go:64: Received Batch 354
+[INFO] 2025/02/25 14:57:29.101852 core.go:118: create Block epoch 94 node 2 batch_id 354 
+[INFO] 2025/02/25 14:57:29.181206 pool.go:64: Received Batch 358
+[INFO] 2025/02/25 14:57:29.181226 core.go:118: create Block epoch 95 node 2 batch_id 358 
+[INFO] 2025/02/25 14:57:29.233473 pool.go:64: Received Batch 362
+[INFO] 2025/02/25 14:57:29.233487 core.go:118: create Block epoch 96 node 2 batch_id 362 
+[INFO] 2025/02/25 14:57:29.286323 pool.go:64: Received Batch 366
+[INFO] 2025/02/25 14:57:29.286335 core.go:118: create Block epoch 97 node 2 batch_id 366 
+[INFO] 2025/02/25 14:57:29.363247 pool.go:64: Received Batch 370
+[INFO] 2025/02/25 14:57:29.363260 core.go:118: create Block epoch 98 node 2 batch_id 370 
+[INFO] 2025/02/25 14:57:29.440270 pool.go:64: Received Batch 374
+[INFO] 2025/02/25 14:57:29.440291 core.go:118: create Block epoch 99 node 2 batch_id 374 
+[INFO] 2025/02/25 14:57:29.511559 pool.go:64: Received Batch 378
+[INFO] 2025/02/25 14:57:29.511582 core.go:118: create Block epoch 100 node 2 batch_id 378 
+[INFO] 2025/02/25 14:57:29.637048 pool.go:64: Received Batch 382
+[INFO] 2025/02/25 14:57:29.637071 core.go:118: create Block epoch 101 node 2 batch_id 382 
+[INFO] 2025/02/25 14:57:29.712733 pool.go:64: Received Batch 386
+[INFO] 2025/02/25 14:57:29.712747 core.go:118: create Block epoch 102 node 2 batch_id 386 
+[INFO] 2025/02/25 14:57:29.861248 pool.go:64: Received Batch 390
+[INFO] 2025/02/25 14:57:29.861266 core.go:118: create Block epoch 103 node 2 batch_id 390 
+[INFO] 2025/02/25 14:57:29.917526 pool.go:64: Received Batch 394
+[INFO] 2025/02/25 14:57:29.917556 core.go:118: create Block epoch 104 node 2 batch_id 394 
+[INFO] 2025/02/25 14:57:30.020388 pool.go:64: Received Batch 398
+[INFO] 2025/02/25 14:57:30.020408 core.go:118: create Block epoch 105 node 2 batch_id 398 
+[INFO] 2025/02/25 14:57:30.119594 pool.go:64: Received Batch 402
+[INFO] 2025/02/25 14:57:30.119618 core.go:118: create Block epoch 106 node 2 batch_id 402 
+[INFO] 2025/02/25 14:57:30.175263 pool.go:64: Received Batch 406
+[INFO] 2025/02/25 14:57:30.175280 core.go:118: create Block epoch 107 node 2 batch_id 406 
+[INFO] 2025/02/25 14:57:30.240441 pool.go:64: Received Batch 410
+[INFO] 2025/02/25 14:57:30.240464 core.go:118: create Block epoch 108 node 2 batch_id 410 
+[INFO] 2025/02/25 14:57:30.296129 pool.go:64: Received Batch 414
+[INFO] 2025/02/25 14:57:30.296152 core.go:118: create Block epoch 109 node 2 batch_id 414 
+[INFO] 2025/02/25 14:57:30.356389 pool.go:64: Received Batch 418
+[INFO] 2025/02/25 14:57:30.356405 core.go:118: create Block epoch 110 node 2 batch_id 418 
+[INFO] 2025/02/25 14:57:30.395030 pool.go:64: Received Batch 422
+[INFO] 2025/02/25 14:57:30.395060 core.go:118: create Block epoch 111 node 2 batch_id 422 
+[INFO] 2025/02/25 14:57:30.478091 pool.go:64: Received Batch 426
+[INFO] 2025/02/25 14:57:30.478109 core.go:118: create Block epoch 112 node 2 batch_id 426 
+[INFO] 2025/02/25 14:57:30.535025 pool.go:64: Received Batch 430
+[INFO] 2025/02/25 14:57:30.535043 core.go:118: create Block epoch 113 node 2 batch_id 430 
+[INFO] 2025/02/25 14:57:30.614004 pool.go:64: Received Batch 434
+[INFO] 2025/02/25 14:57:30.614032 core.go:118: create Block epoch 114 node 2 batch_id 434 
+[INFO] 2025/02/25 14:57:30.665905 pool.go:64: Received Batch 438
+[INFO] 2025/02/25 14:57:30.665921 core.go:118: create Block epoch 115 node 2 batch_id 438 
+[INFO] 2025/02/25 14:57:30.772638 pool.go:64: Received Batch 442
+[INFO] 2025/02/25 14:57:30.772664 core.go:118: create Block epoch 116 node 2 batch_id 442 
+[INFO] 2025/02/25 14:57:30.825898 pool.go:64: Received Batch 446
+[INFO] 2025/02/25 14:57:30.825940 core.go:118: create Block epoch 117 node 2 batch_id 446 
+[INFO] 2025/02/25 14:57:30.938611 pool.go:64: Received Batch 450
+[INFO] 2025/02/25 14:57:30.938991 core.go:118: create Block epoch 118 node 2 batch_id 450 
+[INFO] 2025/02/25 14:57:31.031602 pool.go:64: Received Batch 454
+[INFO] 2025/02/25 14:57:31.035198 core.go:118: create Block epoch 119 node 2 batch_id 454 
+[INFO] 2025/02/25 14:57:31.087047 pool.go:64: Received Batch 458
+[INFO] 2025/02/25 14:57:31.103043 core.go:118: create Block epoch 120 node 2 batch_id 458 
+[INFO] 2025/02/25 14:57:31.152109 pool.go:64: Received Batch 462
+[INFO] 2025/02/25 14:57:31.152136 core.go:118: create Block epoch 121 node 2 batch_id 462 
+[INFO] 2025/02/25 14:57:31.267682 pool.go:64: Received Batch 466
+[INFO] 2025/02/25 14:57:31.267710 core.go:118: create Block epoch 122 node 2 batch_id 466 
+[INFO] 2025/02/25 14:57:31.348366 pool.go:64: Received Batch 470
+[INFO] 2025/02/25 14:57:31.348388 core.go:118: create Block epoch 123 node 2 batch_id 470 
+[INFO] 2025/02/25 14:57:31.387817 pool.go:64: Received Batch 474
+[INFO] 2025/02/25 14:57:31.387832 core.go:118: create Block epoch 124 node 2 batch_id 474 
+[INFO] 2025/02/25 14:57:31.513440 pool.go:64: Received Batch 478
+[INFO] 2025/02/25 14:57:31.513457 core.go:118: create Block epoch 125 node 2 batch_id 478 
+[INFO] 2025/02/25 14:57:31.578382 pool.go:64: Received Batch 482
+[INFO] 2025/02/25 14:57:31.578402 core.go:118: create Block epoch 126 node 2 batch_id 482 
+[INFO] 2025/02/25 14:57:31.613512 pool.go:64: Received Batch 486
+[INFO] 2025/02/25 14:57:31.614752 core.go:118: create Block epoch 127 node 2 batch_id 486 
+[INFO] 2025/02/25 14:57:31.680335 pool.go:64: Received Batch 490
+[INFO] 2025/02/25 14:57:31.680366 core.go:118: create Block epoch 128 node 2 batch_id 490 
+[INFO] 2025/02/25 14:57:31.768797 pool.go:64: Received Batch 494
+[INFO] 2025/02/25 14:57:31.768866 core.go:118: create Block epoch 129 node 2 batch_id 494 
+[INFO] 2025/02/25 14:57:31.845718 pool.go:64: Received Batch 498
+[INFO] 2025/02/25 14:57:31.845729 core.go:118: create Block epoch 130 node 2 batch_id 498 
+[INFO] 2025/02/25 14:57:31.932076 pool.go:64: Received Batch 502
+[INFO] 2025/02/25 14:57:31.932092 core.go:118: create Block epoch 131 node 2 batch_id 502 
+[INFO] 2025/02/25 14:57:32.010484 pool.go:64: Received Batch 506
+[INFO] 2025/02/25 14:57:32.010504 core.go:118: create Block epoch 132 node 2 batch_id 506 
+[INFO] 2025/02/25 14:57:32.084368 pool.go:64: Received Batch 510
+[INFO] 2025/02/25 14:57:32.084382 core.go:118: create Block epoch 133 node 2 batch_id 510 
+[INFO] 2025/02/25 14:57:32.163950 pool.go:64: Received Batch 514
+[INFO] 2025/02/25 14:57:32.163963 core.go:118: create Block epoch 134 node 2 batch_id 514 
+[INFO] 2025/02/25 14:57:32.247779 pool.go:64: Received Batch 518
+[INFO] 2025/02/25 14:57:32.247796 core.go:118: create Block epoch 135 node 2 batch_id 518 

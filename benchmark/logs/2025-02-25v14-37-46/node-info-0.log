@@ -1,0 +1,259 @@
+fatal error: concurrent map writes
+
+goroutine 183 [running]:
+bft/mvba/core/aleabft/consensus.(*Bolt).ProcessVote(0xc000605180, 0xc0005f9900)
+	/root/alea/aleabft02/core/aleabft/consensus/bolt.go:84 +0x76
+created by bft/mvba/core/aleabft/consensus.(*Core).handleVote in goroutine 23
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157 +0x2dc
+
+goroutine 1 [chan receive]:
+bft/mvba/node.(*Node).AnalyzeBlock(...)
+	/root/alea/aleabft02/node/node.go:82
+main.main.func3(0xc0000e4400?, {0x73df2f?, 0x4?, 0x73df33?})
+	/root/alea/aleabft02/main.go:87 +0xce
+github.com/spf13/cobra.(*Command).execute(0xc0000e8900, {0xc0000e5000, 0x10, 0x10})
+	/go/pkg/mod/github.com/spf13/cobra@v1.8.1/command.go:989 +0xaa3
+github.com/spf13/cobra.(*Command).ExecuteC(0xc0000e8000)
+	/go/pkg/mod/github.com/spf13/cobra@v1.8.1/command.go:1117 +0x3ff
+github.com/spf13/cobra.(*Command).ExecuteC(0xc0000e8000?)
+	/go/pkg/mod/github.com/spf13/cobra@v1.8.1/command.go:1061 +0x5f6
+github.com/spf13/cobra.(*Command).Execute(...)
+	/go/pkg/mod/github.com/spf13/cobra@v1.8.1/command.go:1041
+main.main()
+	/root/alea/aleabft02/main.go:91 +0x599
+
+goroutine 6 [select]:
+github.com/nutsdb/nutsdb.(*DB).mergeWorker(0xc0000dea00)
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/merge.go:204 +0xc5
+created by github.com/nutsdb/nutsdb.open in goroutine 1
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/db.go:115 +0x7f9
+
+goroutine 7 [chan receive]:
+github.com/nutsdb/nutsdb.(*DB).doWrites(0xc0000dea00)
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/db.go:349 +0xef
+created by github.com/nutsdb/nutsdb.open in goroutine 1
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/db.go:116 +0x836
+
+goroutine 8 [select]:
+github.com/antlabs/timer.(*timeWheel).Run(0xc000122000)
+	/go/pkg/mod/github.com/antlabs/timer@v0.0.11/time_wheel.go:293 +0xe6
+github.com/nutsdb/nutsdb.(*ttlManager).run(0x0?)
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/ttl_manager.go:79 +0x1b
+created by github.com/nutsdb/nutsdb.open in goroutine 1
+	/go/pkg/mod/github.com/nutsdb/nutsdb@v1.0.4/db.go:117 +0x88c
+
+goroutine 9 [chan receive]:
+bft/mvba/store.NewStore.func1()
+	/root/alea/aleabft02/store/store.go:42 +0x3e
+created by bft/mvba/store.NewStore in goroutine 1
+	/root/alea/aleabft02/store/store.go:41 +0xc5
+
+goroutine 10 [chan receive]:
+bft/mvba/crypto.NewSigService.func1()
+	/root/alea/aleabft02/crypto/crypto.go:122 +0x52
+created by bft/mvba/crypto.NewSigService in goroutine 1
+	/root/alea/aleabft02/crypto/crypto.go:121 +0x138
+
+goroutine 11 [chan receive]:
+bft/mvba/network.(*Sender).Run(0xc0000120d8)
+	/root/alea/aleabft02/network/network.go:30 +0x3c
+created by bft/mvba/core/aleabft/consensus.Consensus in goroutine 1
+	/root/alea/aleabft02/core/aleabft/consensus/consensus.go:45 +0x45f
+
+goroutine 12 [IO wait]:
+internal/poll.runtime_pollWait(0x7f0028ed8660, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:343 +0x85
+internal/poll.(*pollDesc).wait(0xc000604080?, 0x6b?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+internal/poll.(*pollDesc).waitRead(...)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Accept(0xc000604080)
+	/usr/local/go/src/internal/poll/fd_unix.go:611 +0x2ac
+net.(*netFD).accept(0xc000604080)
+	/usr/local/go/src/net/fd_unix.go:172 +0x29
+net.(*TCPListener).accept(0xc000060000)
+	/usr/local/go/src/net/tcpsock_posix.go:152 +0x1e
+net.(*TCPListener).Accept(0xc000060000)
+	/usr/local/go/src/net/tcpsock.go:315 +0x30
+bft/mvba/network.(*Receiver).Run(0xc0000600e0)
+	/root/alea/aleabft02/network/network.go:102 +0xe5
+created by bft/mvba/core/aleabft/consensus.Consensus in goroutine 1
+	/root/alea/aleabft02/core/aleabft/consensus/consensus.go:47 +0x531
+
+goroutine 13 [chan receive]:
+bft/mvba/core.NewTransmitor.func1()
+	/root/alea/aleabft02/core/transmitor.go:37 +0x65
+created by bft/mvba/core.NewTransmitor in goroutine 1
+	/root/alea/aleabft02/core/transmitor.go:36 +0x15f
+
+goroutine 14 [chan receive]:
+bft/mvba/core.NewTransmitor.func2()
+	/root/alea/aleabft02/core/transmitor.go:43 +0x85
+created by bft/mvba/core.NewTransmitor in goroutine 1
+	/root/alea/aleabft02/core/transmitor.go:42 +0x19b
+
+goroutine 36 [chan receive]:
+bft/mvba/network.(*Sender).connect.func1()
+	/root/alea/aleabft02/network/network.go:65 +0x8d
+created by bft/mvba/network.(*Sender).connect in goroutine 11
+	/root/alea/aleabft02/network/network.go:63 +0x287
+
+goroutine 20 [chan receive]:
+bft/mvba/pool.(*txQueue).run(0xc0000c22a0, 0xe?)
+	/root/alea/aleabft02/pool/pool.go:43 +0x3f
+created by bft/mvba/pool.(*Pool).Run in goroutine 1
+	/root/alea/aleabft02/pool/pool.go:168 +0x77
+
+goroutine 37 [chan receive]:
+bft/mvba/network.(*Sender).connect.func1()
+	/root/alea/aleabft02/network/network.go:65 +0x8d
+created by bft/mvba/network.(*Sender).connect in goroutine 11
+	/root/alea/aleabft02/network/network.go:63 +0x287
+
+goroutine 35 [chan receive]:
+bft/mvba/network.(*Sender).connect.func1()
+	/root/alea/aleabft02/network/network.go:65 +0x8d
+created by bft/mvba/network.(*Sender).connect in goroutine 11
+	/root/alea/aleabft02/network/network.go:63 +0x287
+
+goroutine 22 [chan receive]:
+bft/mvba/core/aleabft/consensus.(*Committor).run(0xc000060120)
+	/root/alea/aleabft02/core/aleabft/consensus/commitor.go:49 +0x50
+created by bft/mvba/core/aleabft/consensus.NewCommittor in goroutine 1
+	/root/alea/aleabft02/core/aleabft/consensus/commitor.go:22 +0xcc
+
+goroutine 23 [runnable]:
+bft/mvba/core/aleabft/consensus.(*Core).Run(0xc0000d40c0)
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:301 +0x34a
+created by bft/mvba/core/aleabft/consensus.Consensus in goroutine 1
+	/root/alea/aleabft02/core/aleabft/consensus/consensus.go:76 +0x9af
+
+goroutine 30 [IO wait]:
+internal/poll.runtime_pollWait(0x7f0028ed7f98, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:343 +0x85
+internal/poll.(*pollDesc).wait(0xc000604580?, 0xc000171000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+internal/poll.(*pollDesc).waitRead(...)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Read(0xc000604580, {0xc000171000, 0x1000, 0x1000})
+	/usr/local/go/src/internal/poll/fd_unix.go:164 +0x27a
+net.(*netFD).Read(0xc000604580, {0xc000171000?, 0x6f6ca0?, 0xc0005f80a0?})
+	/usr/local/go/src/net/fd_posix.go:55 +0x25
+net.(*conn).Read(0xc000044310, {0xc000171000?, 0xc0005f8080?, 0xc000655d28?})
+	/usr/local/go/src/net/net.go:179 +0x45
+bufio.(*Reader).Read(0xc00006ef00, {0xc000014d60, 0x1, 0xc000655e18?})
+	/usr/local/go/src/bufio/bufio.go:244 +0x197
+io.ReadAtLeast({0x7b20a0, 0xc00006ef00}, {0xc000014d60, 0x1, 0x9}, 0x1)
+	/usr/local/go/src/io/io.go:335 +0x90
+io.ReadFull(...)
+	/usr/local/go/src/io/io.go:354
+encoding/gob.decodeUintReader({0x7b20a0, 0xc00006ef00}, {0xc000014d60, 0x9, 0x9})
+	/usr/local/go/src/encoding/gob/decode.go:116 +0x51
+encoding/gob.(*Decoder).recvMessage(0xc000604600)
+	/usr/local/go/src/encoding/gob/decoder.go:82 +0x33
+encoding/gob.(*Decoder).decodeTypeSequence(0xc000604600, 0x0)
+	/usr/local/go/src/encoding/gob/decoder.go:148 +0x47
+encoding/gob.(*Decoder).DecodeValue(0xc000604600, {0x6c7fe0?, 0xc0006dc3c8?, 0x0?})
+	/usr/local/go/src/encoding/gob/decoder.go:227 +0x16e
+encoding/gob.(*Decoder).Decode(0xc000604600, {0x6c7fe0?, 0xc0006dc3c8?})
+	/usr/local/go/src/encoding/gob/decoder.go:204 +0x125
+bft/mvba/network.(*Codec).Read(0xc000012570)
+	/root/alea/aleabft02/network/codec.go:50 +0x48
+bft/mvba/network.(*Receiver).serveConn(0xc0000600e0, {0x7b5ab8?, 0xc000044310})
+	/root/alea/aleabft02/network/network.go:115 +0x72
+created by bft/mvba/network.(*Receiver).Run in goroutine 12
+	/root/alea/aleabft02/network/network.go:108 +0x265
+
+goroutine 27 [IO wait]:
+internal/poll.runtime_pollWait(0x7f0028ed8188, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:343 +0x85
+internal/poll.(*pollDesc).wait(0xc000604300?, 0xc000170000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+internal/poll.(*pollDesc).waitRead(...)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Read(0xc000604300, {0xc000170000, 0x1000, 0x1000})
+	/usr/local/go/src/internal/poll/fd_unix.go:164 +0x27a
+net.(*netFD).Read(0xc000604300, {0xc000170000?, 0x6f6ca0?, 0xc0005f9920?})
+	/usr/local/go/src/net/fd_posix.go:55 +0x25
+net.(*conn).Read(0xc0000440c8, {0xc000170000?, 0xc0005f9900?, 0xc000657d28?})
+	/usr/local/go/src/net/net.go:179 +0x45
+bufio.(*Reader).Read(0xc00006ed20, {0xc0000146f0, 0x1, 0xc000657e18?})
+	/usr/local/go/src/bufio/bufio.go:244 +0x197
+io.ReadAtLeast({0x7b20a0, 0xc00006ed20}, {0xc0000146f0, 0x1, 0x9}, 0x1)
+	/usr/local/go/src/io/io.go:335 +0x90
+io.ReadFull(...)
+	/usr/local/go/src/io/io.go:354
+encoding/gob.decodeUintReader({0x7b20a0, 0xc00006ed20}, {0xc0000146f0, 0x9, 0x9})
+	/usr/local/go/src/encoding/gob/decode.go:116 +0x51
+encoding/gob.(*Decoder).recvMessage(0xc000604380)
+	/usr/local/go/src/encoding/gob/decoder.go:82 +0x33
+encoding/gob.(*Decoder).decodeTypeSequence(0xc000604380, 0x0)
+	/usr/local/go/src/encoding/gob/decoder.go:148 +0x47
+encoding/gob.(*Decoder).DecodeValue(0xc000604380, {0x6c7fe0?, 0xc000a36820?, 0xc000085520?})
+	/usr/local/go/src/encoding/gob/decoder.go:227 +0x16e
+encoding/gob.(*Decoder).Decode(0xc000604380, {0x6c7fe0?, 0xc000a36820?})
+	/usr/local/go/src/encoding/gob/decoder.go:204 +0x125
+bft/mvba/network.(*Codec).Read(0xc000012240)
+	/root/alea/aleabft02/network/codec.go:50 +0x48
+bft/mvba/network.(*Receiver).serveConn(0xc0000600e0, {0x7b5ab8?, 0xc0000440c8})
+	/root/alea/aleabft02/network/network.go:115 +0x72
+created by bft/mvba/network.(*Receiver).Run in goroutine 12
+	/root/alea/aleabft02/network/network.go:108 +0x265
+
+goroutine 43 [IO wait]:
+internal/poll.runtime_pollWait(0x7f0028ed7da8, 0x72)
+	/usr/local/go/src/runtime/netpoll.go:343 +0x85
+internal/poll.(*pollDesc).wait(0xc0000e6680?, 0xc00065b000?, 0x0)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:84 +0x27
+internal/poll.(*pollDesc).waitRead(...)
+	/usr/local/go/src/internal/poll/fd_poll_runtime.go:89
+internal/poll.(*FD).Read(0xc0000e6680, {0xc00065b000, 0x1000, 0x1000})
+	/usr/local/go/src/internal/poll/fd_unix.go:164 +0x27a
+net.(*netFD).Read(0xc0000e6680, {0xc00065b000?, 0x6f6ca0?, 0xc0005f98a0?})
+	/usr/local/go/src/net/fd_posix.go:55 +0x25
+net.(*conn).Read(0xc0000926f0, {0xc00065b000?, 0xc0005f9880?, 0xc000149d28?})
+	/usr/local/go/src/net/net.go:179 +0x45
+bufio.(*Reader).Read(0xc000133ce0, {0xc0000bd1b0, 0x1, 0xc000149e18?})
+	/usr/local/go/src/bufio/bufio.go:244 +0x197
+io.ReadAtLeast({0x7b20a0, 0xc000133ce0}, {0xc0000bd1b0, 0x1, 0x9}, 0x1)
+	/usr/local/go/src/io/io.go:335 +0x90
+io.ReadFull(...)
+	/usr/local/go/src/io/io.go:354
+encoding/gob.decodeUintReader({0x7b20a0, 0xc000133ce0}, {0xc0000bd1b0, 0x9, 0x9})
+	/usr/local/go/src/encoding/gob/decode.go:116 +0x51
+encoding/gob.(*Decoder).recvMessage(0xc0000e6700)
+	/usr/local/go/src/encoding/gob/decoder.go:82 +0x33
+encoding/gob.(*Decoder).decodeTypeSequence(0xc0000e6700, 0x0)
+	/usr/local/go/src/encoding/gob/decoder.go:148 +0x47
+encoding/gob.(*Decoder).DecodeValue(0xc0000e6700, {0x6c7fe0?, 0xc000a36810?, 0x0?})
+	/usr/local/go/src/encoding/gob/decoder.go:227 +0x16e
+encoding/gob.(*Decoder).Decode(0xc0000e6700, {0x6c7fe0?, 0xc000a36810?})
+	/usr/local/go/src/encoding/gob/decoder.go:204 +0x125
+bft/mvba/network.(*Codec).Read(0xc00009c588)
+	/root/alea/aleabft02/network/codec.go:50 +0x48
+bft/mvba/network.(*Receiver).serveConn(0xc0000600e0, {0x7b5ab8?, 0xc0000926f0})
+	/root/alea/aleabft02/network/network.go:115 +0x72
+created by bft/mvba/network.(*Receiver).Run in goroutine 12
+	/root/alea/aleabft02/network/network.go:108 +0x265
+
+goroutine 185 [runnable]:
+bft/mvba/core/aleabft/consensus.(*Core).handleVote.func1()
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157
+runtime.goexit()
+	/usr/local/go/src/runtime/asm_amd64.s:1650 +0x1
+created by bft/mvba/core/aleabft/consensus.(*Core).handleVote in goroutine 23
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157 +0x2dc
+
+goroutine 184 [runnable]:
+bft/mvba/core/aleabft/consensus.(*Core).handleVote.func1()
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157
+runtime.goexit()
+	/usr/local/go/src/runtime/asm_amd64.s:1650 +0x1
+created by bft/mvba/core/aleabft/consensus.(*Core).handleVote in goroutine 23
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157 +0x2dc
+
+goroutine 182 [runnable]:
+bft/mvba/core/aleabft/consensus.(*Bolt).ProcessVote(0xc000605180, 0xc0005f9880)
+	/root/alea/aleabft02/core/aleabft/consensus/bolt.go:84 +0x76
+created by bft/mvba/core/aleabft/consensus.(*Core).handleVote in goroutine 23
+	/root/alea/aleabft02/core/aleabft/consensus/core.go:157 +0x2dc

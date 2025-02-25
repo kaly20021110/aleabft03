@@ -20,6 +20,7 @@ type Core struct {
 	Commitor      *Committor //用于提交提案block
 	Epoch         int64
 	LeaderEpoch   int64
+	abaHeight     map[core.NodeID]int64//存储每个ABA开始的位置，在ABA结束之前不能提前提交
 	abaInstances  map[int64]map[int64]*ABA         //aba实例的二维数组 ID epoch
 	boltInstances map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
 	prepareSet    map[int64][]*Prepare             //存储每个Epoch的Prepare消息,没太懂这个prepare消息具体在做什么
@@ -50,6 +51,7 @@ func NewCore(
 		Commitor:      NewCommittor(callBack),
 		Epoch:         0,
 		LeaderEpoch:   0,
+		abaHeight:     make(map[core.NodeID]int64),
 		abaInstances:  make(map[int64]map[int64]*ABA),
 		boltInstances: make(map[int64]map[core.NodeID]*Bolt),
 		prepareSet:    make(map[int64][]*Prepare),
@@ -163,7 +165,8 @@ func (c *Core) invokeABA() error {
 	if blockMap, exists := c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]; exists {
 		lens = len(blockMap)
 	}
-
+	//记录每个人在每条队列上的参与ABA的高度
+	c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens)
 	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, int64(lens), c.SigService)
 	c.Transimtor.Send(c.Name, core.NONE, prepare)
 	c.Transimtor.RecvChannel() <- prepare
@@ -238,13 +241,12 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 		return nil
 	}
 	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
-
-	c.abvanceNextABAEpoch(halt.Epoch + 1)
-
 	return c.handleOutput(halt.Epoch, halt.Leader)
 }
 
 func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //直接提交或者间接提交
+
+	logger.Error.Printf("aba starting commit epoch %d leader %d\n",epoch,leader)
 	cbc := c.getBoltInstance(epoch, leader)
 	if cbc.BlockHash != nil {
 		if block, err := c.getBlock(*cbc.BlockHash); err != nil {
@@ -262,6 +264,7 @@ func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //直接提
 			}
 		}
 	}
+	c.abvanceNextABAEpoch(epoch + 1)
 	return nil
 }
 

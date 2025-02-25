@@ -1,0 +1,1 @@
+[WARN] 2025/02/25 15:05:48.111187 network.go:67: Failed to send message to 127.0.0.1:6000: write tcp 127.0.0.1:56342->127.0.0.1:6000: write: connection reset by peer 

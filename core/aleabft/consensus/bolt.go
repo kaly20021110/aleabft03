@@ -52,6 +52,7 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 	instance.BMutex.Lock()
 	d := p.B.Hash()
 	instance.BlockHash = &d
+	instance.c.storeBlock(p.B)
 	instance.BMutex.Unlock()
 
 	if p.Epoch >= 1 {
@@ -60,9 +61,14 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 				instance.c.commitments[p.Author] = make(map[int64]*Block)
 				instance.c.commitments[p.Author][p.Epoch] = p.B
 			}
-			//fast path 01
+			//fast path 快速路径，当目前没有进行ABA时，可以直接提案commit块  
 			if p.Epoch >= 2 {
-				instance.c.Commitor.Commit(p.Epoch-2, p.Author, instance.c.commitments[p.Author][p.Epoch-2])
+				if core.NodeID(instance.c.LeaderEpoch%int64(instance.c.Committee.Size())) != p.Author {
+					for i:=instance.c.abaHeight[p.Author];i<=p.Epoch-2;i++{//直接提交和间接提交
+						instance.c.Commitor.Commit(i, p.Author, instance.c.commitments[p.Author][i])
+					}
+					//instance.c.Commitor.Commit(p.Epoch-2, p.Author, instance.c.commitments[p.Author][p.Epoch-2])
+				}
 			}
 		}
 	}

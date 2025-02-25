@@ -1,0 +1,246 @@
+[DUBUG] 2025/02/25 14:37:48.110996 network.go:99: Listening on :6000 
+[DUBUG] 2025/02/25 14:37:48.612925 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.613025 core.go:130: Processing proposal proposer 0 epoch 0
+[DUBUG] 2025/02/25 14:37:48.613140 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.613598 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.613678 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.613720 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.613757 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.616557 core.go:175: Processing  prepare leader 0 proposer 0 epoch 0 
+[DUBUG] 2025/02/25 14:37:48.617022 core.go:153: Processing Vote proposer 0 epoch 0
+[DUBUG] 2025/02/25 14:37:48.627119 core.go:130: Processing proposal proposer 1 epoch 0
+[DUBUG] 2025/02/25 14:37:48.631111 core.go:175: Processing  prepare leader 1 proposer 0 epoch 0 
+[DUBUG] 2025/02/25 14:37:48.631131 core.go:153: Processing Vote proposer 0 epoch 0
+[DUBUG] 2025/02/25 14:37:48.631526 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.633138 core.go:130: Processing proposal proposer 2 epoch 0
+[DUBUG] 2025/02/25 14:37:48.637703 core.go:175: Processing  prepare leader 2 proposer 0 epoch 0 
+[DUBUG] 2025/02/25 14:37:48.638505 core.go:153: Processing Vote proposer 0 epoch 0
+[DUBUG] 2025/02/25 14:37:48.638597 core.go:198: Processing aba val leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.638691 core.go:198: Processing aba val leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.646208 core.go:130: Processing proposal proposer 3 epoch 0
+[DUBUG] 2025/02/25 14:37:48.659804 core.go:175: Processing  prepare leader 3 proposer 0 epoch 0 
+[DUBUG] 2025/02/25 14:37:48.659825 core.go:153: Processing Vote proposer 0 epoch 0
+[DUBUG] 2025/02/25 14:37:48.659910 core.go:198: Processing aba val leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.665086 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.665145 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.665192 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.665239 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.670342 core.go:209: Processing aba mux leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.670481 core.go:198: Processing aba val leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.670599 core.go:209: Processing aba mux leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.674575 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.674691 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.674786 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.674812 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.674833 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.674856 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.674879 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.674969 core.go:209: Processing aba mux leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.678240 core.go:236: Processing aba halt leader 0 epoch 0 in-round 0
+[DUBUG] 2025/02/25 14:37:48.678264 core.go:277: advance next abaepoch 1
+[DUBUG] 2025/02/25 14:37:48.679389 core.go:175: Processing  prepare leader 0 proposer 1 epoch 1 
+[DUBUG] 2025/02/25 14:37:48.685118 core.go:130: Processing proposal proposer 2 epoch 1
+[DUBUG] 2025/02/25 14:37:48.690136 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.690163 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.690178 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.691853 core.go:130: Processing proposal proposer 0 epoch 1
+[DUBUG] 2025/02/25 14:37:48.691898 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.694788 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.694806 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.694828 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.691931 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.694862 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.694878 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.695273 core.go:209: Processing aba mux leader 0 epoch 0 round 0 val 0
+[DUBUG] 2025/02/25 14:37:48.695357 core.go:236: Processing aba halt leader 0 epoch 0 in-round 0
+[DUBUG] 2025/02/25 14:37:48.695361 core.go:175: Processing  prepare leader 3 proposer 1 epoch 1 
+[DUBUG] 2025/02/25 14:37:48.695368 core.go:130: Processing proposal proposer 3 epoch 1
+[DUBUG] 2025/02/25 14:37:48.695752 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.695847 core.go:236: Processing aba halt leader 0 epoch 0 in-round 0
+[DUBUG] 2025/02/25 14:37:48.695856 core.go:153: Processing Vote proposer 0 epoch 1
+[DUBUG] 2025/02/25 14:37:48.698273 core.go:153: Processing Vote proposer 0 epoch 1
+[DUBUG] 2025/02/25 14:37:48.704040 core.go:153: Processing Vote proposer 0 epoch 1
+[DUBUG] 2025/02/25 14:37:48.719720 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.719750 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.719784 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.721782 core.go:130: Processing proposal proposer 0 epoch 2
+[DUBUG] 2025/02/25 14:37:48.722180 core.go:153: Processing Vote proposer 0 epoch 2
+[DUBUG] 2025/02/25 14:37:48.731952 core.go:153: Processing Vote proposer 0 epoch 2
+[DUBUG] 2025/02/25 14:37:48.731981 core.go:175: Processing  prepare leader 1 proposer 1 epoch 1 
+[DUBUG] 2025/02/25 14:37:48.731990 core.go:130: Processing proposal proposer 1 epoch 1
+[DUBUG] 2025/02/25 14:37:48.732084 core.go:236: Processing aba halt leader 0 epoch 0 in-round 0
+[DUBUG] 2025/02/25 14:37:48.732188 core.go:236: Processing aba halt leader 0 epoch 0 in-round 0
+[DUBUG] 2025/02/25 14:37:48.732272 core.go:198: Processing aba val leader 1 epoch 1 round 0 val 1
+[DUBUG] 2025/02/25 14:37:48.732279 core.go:153: Processing Vote proposer 0 epoch 1
+[DUBUG] 2025/02/25 14:37:48.732284 core.go:153: Processing Vote proposer 0 epoch 2
+[DUBUG] 2025/02/25 14:37:48.749086 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.749115 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.749149 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.749341 core.go:130: Processing proposal proposer 0 epoch 3
+[DUBUG] 2025/02/25 14:37:48.749429 core.go:198: Processing aba val leader 1 epoch 1 round 0 val 1
+[DUBUG] 2025/02/25 14:37:48.749437 core.go:130: Processing proposal proposer 3 epoch 2
+[DUBUG] 2025/02/25 14:37:48.749441 core.go:153: Processing Vote proposer 0 epoch 2
+[DUBUG] 2025/02/25 14:37:48.749519 core.go:209: Processing aba mux leader 0 epoch 1 round 0 val 1
+[DUBUG] 2025/02/25 14:37:48.750016 core.go:153: Processing Vote proposer 0 epoch 3
+[DUBUG] 2025/02/25 14:37:48.766695 core.go:198: Processing aba val leader 0 epoch 1 round 0 val 1
+[DUBUG] 2025/02/25 14:37:48.766716 core.go:130: Processing proposal proposer 2 epoch 2
+[DUBUG] 2025/02/25 14:37:48.766723 core.go:153: Processing Vote proposer 0 epoch 3
+[DUBUG] 2025/02/25 14:37:48.766736 core.go:153: Processing Vote proposer 0 epoch 3
+[DUBUG] 2025/02/25 14:37:48.766745 core.go:153: Processing Vote proposer 0 epoch 3
+[DUBUG] 2025/02/25 14:37:48.782237 core.go:130: Processing proposal proposer 1 epoch 2
+[DUBUG] 2025/02/25 14:37:48.782258 core.go:130: Processing proposal proposer 3 epoch 3
+[DUBUG] 2025/02/25 14:37:48.792631 core.go:130: Processing proposal proposer 0 epoch 4
+[DUBUG] 2025/02/25 14:37:48.795833 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.795877 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.795915 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.796259 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.796675 core.go:153: Processing Vote proposer 0 epoch 4
+[DUBUG] 2025/02/25 14:37:48.800250 core.go:153: Processing Vote proposer 0 epoch 4
+[DUBUG] 2025/02/25 14:37:48.806352 core.go:130: Processing proposal proposer 2 epoch 3
+[DUBUG] 2025/02/25 14:37:48.810307 core.go:153: Processing Vote proposer 0 epoch 4
+[DUBUG] 2025/02/25 14:37:48.827491 core.go:153: Processing Vote proposer 0 epoch 4
+[DUBUG] 2025/02/25 14:37:48.835833 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.835869 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.835896 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.836035 core.go:130: Processing proposal proposer 0 epoch 5
+[DUBUG] 2025/02/25 14:37:48.836047 core.go:130: Processing proposal proposer 3 epoch 4
+[DUBUG] 2025/02/25 14:37:48.837332 core.go:153: Processing Vote proposer 0 epoch 5
+[DUBUG] 2025/02/25 14:37:48.837347 core.go:153: Processing Vote proposer 0 epoch 5
+[DUBUG] 2025/02/25 14:37:48.839509 core.go:153: Processing Vote proposer 0 epoch 5
+[DUBUG] 2025/02/25 14:37:48.870864 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.870890 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.870984 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.873814 core.go:130: Processing proposal proposer 0 epoch 6
+[DUBUG] 2025/02/25 14:37:48.873840 core.go:130: Processing proposal proposer 2 epoch 4
+[DUBUG] 2025/02/25 14:37:48.873845 core.go:153: Processing Vote proposer 0 epoch 5
+[DUBUG] 2025/02/25 14:37:48.873850 core.go:130: Processing proposal proposer 3 epoch 5
+[DUBUG] 2025/02/25 14:37:48.873859 core.go:153: Processing Vote proposer 0 epoch 6
+[DUBUG] 2025/02/25 14:37:48.874180 core.go:153: Processing Vote proposer 0 epoch 6
+[DUBUG] 2025/02/25 14:37:48.874210 core.go:153: Processing Vote proposer 0 epoch 6
+[DUBUG] 2025/02/25 14:37:48.895171 core.go:153: Processing Vote proposer 0 epoch 6
+[DUBUG] 2025/02/25 14:37:48.913963 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.914485 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.914529 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.914667 core.go:130: Processing proposal proposer 0 epoch 7
+[DUBUG] 2025/02/25 14:37:48.914681 core.go:130: Processing proposal proposer 3 epoch 6
+[DUBUG] 2025/02/25 14:37:48.916025 core.go:153: Processing Vote proposer 0 epoch 7
+[DUBUG] 2025/02/25 14:37:48.919609 core.go:153: Processing Vote proposer 0 epoch 7
+[DUBUG] 2025/02/25 14:37:48.919630 core.go:153: Processing Vote proposer 0 epoch 7
+[DUBUG] 2025/02/25 14:37:48.936892 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.938787 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.945834 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.945964 core.go:130: Processing proposal proposer 3 epoch 7
+[DUBUG] 2025/02/25 14:37:48.945975 core.go:153: Processing Vote proposer 0 epoch 7
+[DUBUG] 2025/02/25 14:37:48.946059 core.go:130: Processing proposal proposer 0 epoch 8
+[DUBUG] 2025/02/25 14:37:48.946443 core.go:153: Processing Vote proposer 0 epoch 8
+[DUBUG] 2025/02/25 14:37:48.946464 core.go:153: Processing Vote proposer 0 epoch 8
+[DUBUG] 2025/02/25 14:37:48.946482 core.go:153: Processing Vote proposer 0 epoch 8
+[DUBUG] 2025/02/25 14:37:48.972551 core.go:153: Processing Vote proposer 0 epoch 8
+[DUBUG] 2025/02/25 14:37:48.986380 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:48.986426 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:48.986451 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:48.986754 core.go:130: Processing proposal proposer 3 epoch 8
+[DUBUG] 2025/02/25 14:37:48.986957 core.go:130: Processing proposal proposer 0 epoch 9
+[DUBUG] 2025/02/25 14:37:49.000543 core.go:153: Processing Vote proposer 0 epoch 9
+[DUBUG] 2025/02/25 14:37:49.000592 core.go:153: Processing Vote proposer 0 epoch 9
+[DUBUG] 2025/02/25 14:37:49.000599 core.go:153: Processing Vote proposer 0 epoch 9
+[DUBUG] 2025/02/25 14:37:49.025706 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.025737 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.025771 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.025873 core.go:130: Processing proposal proposer 0 epoch 10
+[DUBUG] 2025/02/25 14:37:49.030179 core.go:153: Processing Vote proposer 0 epoch 10
+[DUBUG] 2025/02/25 14:37:49.030237 core.go:153: Processing Vote proposer 0 epoch 10
+[DUBUG] 2025/02/25 14:37:49.030243 core.go:130: Processing proposal proposer 3 epoch 9
+[DUBUG] 2025/02/25 14:37:49.030248 core.go:153: Processing Vote proposer 0 epoch 9
+[DUBUG] 2025/02/25 14:37:49.030253 core.go:153: Processing Vote proposer 0 epoch 10
+[DUBUG] 2025/02/25 14:37:49.030258 core.go:153: Processing Vote proposer 0 epoch 10
+[DUBUG] 2025/02/25 14:37:49.061751 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.061868 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.061913 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.062310 core.go:130: Processing proposal proposer 0 epoch 11
+[DUBUG] 2025/02/25 14:37:49.062678 core.go:153: Processing Vote proposer 0 epoch 11
+[DUBUG] 2025/02/25 14:37:49.063579 core.go:130: Processing proposal proposer 3 epoch 10
+[DUBUG] 2025/02/25 14:37:49.064018 core.go:153: Processing Vote proposer 0 epoch 11
+[DUBUG] 2025/02/25 14:37:49.065813 core.go:153: Processing Vote proposer 0 epoch 11
+[DUBUG] 2025/02/25 14:37:49.086269 core.go:153: Processing Vote proposer 0 epoch 11
+[DUBUG] 2025/02/25 14:37:49.094982 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.095018 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.095057 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.098522 core.go:130: Processing proposal proposer 0 epoch 12
+[DUBUG] 2025/02/25 14:37:49.098551 core.go:130: Processing proposal proposer 3 epoch 11
+[DUBUG] 2025/02/25 14:37:49.098557 core.go:153: Processing Vote proposer 0 epoch 12
+[DUBUG] 2025/02/25 14:37:49.098563 core.go:153: Processing Vote proposer 0 epoch 12
+[DUBUG] 2025/02/25 14:37:49.098895 core.go:153: Processing Vote proposer 0 epoch 12
+[DUBUG] 2025/02/25 14:37:49.129331 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.129451 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.129545 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.133762 core.go:130: Processing proposal proposer 0 epoch 13
+[DUBUG] 2025/02/25 14:37:49.133801 core.go:153: Processing Vote proposer 0 epoch 12
+[DUBUG] 2025/02/25 14:37:49.133809 core.go:153: Processing Vote proposer 0 epoch 13
+[DUBUG] 2025/02/25 14:37:49.133816 core.go:153: Processing Vote proposer 0 epoch 13
+[DUBUG] 2025/02/25 14:37:49.134218 core.go:153: Processing Vote proposer 0 epoch 13
+[DUBUG] 2025/02/25 14:37:49.134232 core.go:130: Processing proposal proposer 3 epoch 12
+[DUBUG] 2025/02/25 14:37:49.164170 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.164206 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.164239 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.164369 core.go:130: Processing proposal proposer 0 epoch 14
+[DUBUG] 2025/02/25 14:37:49.164387 core.go:153: Processing Vote proposer 0 epoch 13
+[DUBUG] 2025/02/25 14:37:49.164681 core.go:153: Processing Vote proposer 0 epoch 14
+[DUBUG] 2025/02/25 14:37:49.178858 core.go:153: Processing Vote proposer 0 epoch 14
+[DUBUG] 2025/02/25 14:37:49.178894 core.go:153: Processing Vote proposer 0 epoch 14
+[DUBUG] 2025/02/25 14:37:49.198207 core.go:130: Processing proposal proposer 3 epoch 13
+[DUBUG] 2025/02/25 14:37:49.198230 core.go:153: Processing Vote proposer 0 epoch 14
+[DUBUG] 2025/02/25 14:37:49.205518 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.205629 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.205675 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.213342 core.go:130: Processing proposal proposer 0 epoch 15
+[DUBUG] 2025/02/25 14:37:49.213368 core.go:153: Processing Vote proposer 0 epoch 15
+[DUBUG] 2025/02/25 14:37:49.213374 core.go:153: Processing Vote proposer 0 epoch 15
+[DUBUG] 2025/02/25 14:37:49.213380 core.go:130: Processing proposal proposer 3 epoch 14
+[DUBUG] 2025/02/25 14:37:49.213384 core.go:153: Processing Vote proposer 0 epoch 15
+[DUBUG] 2025/02/25 14:37:49.213685 core.go:153: Processing Vote proposer 0 epoch 15
+[DUBUG] 2025/02/25 14:37:49.234905 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.235009 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.235058 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.237429 core.go:130: Processing proposal proposer 0 epoch 16
+[DUBUG] 2025/02/25 14:37:49.238485 core.go:153: Processing Vote proposer 0 epoch 16
+[DUBUG] 2025/02/25 14:37:49.238527 core.go:153: Processing Vote proposer 0 epoch 16
+[DUBUG] 2025/02/25 14:37:49.243493 core.go:153: Processing Vote proposer 0 epoch 16
+[DUBUG] 2025/02/25 14:37:49.272388 core.go:130: Processing proposal proposer 3 epoch 15
+[DUBUG] 2025/02/25 14:37:49.272400 core.go:153: Processing Vote proposer 0 epoch 16
+[DUBUG] 2025/02/25 14:37:49.272406 core.go:130: Processing proposal proposer 3 epoch 16
+[DUBUG] 2025/02/25 14:37:49.274404 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.274437 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.274464 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.274584 core.go:130: Processing proposal proposer 0 epoch 17
+[DUBUG] 2025/02/25 14:37:49.278483 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.282827 core.go:153: Processing Vote proposer 0 epoch 17
+[DUBUG] 2025/02/25 14:37:49.282847 core.go:153: Processing Vote proposer 0 epoch 17
+[DUBUG] 2025/02/25 14:37:49.282853 core.go:153: Processing Vote proposer 0 epoch 17
+[DUBUG] 2025/02/25 14:37:49.296236 core.go:153: Processing Vote proposer 0 epoch 17
+[DUBUG] 2025/02/25 14:37:49.318038 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.318155 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.318201 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.321494 core.go:130: Processing proposal proposer 0 epoch 18
+[DUBUG] 2025/02/25 14:37:49.321530 core.go:130: Processing proposal proposer 3 epoch 17
+[DUBUG] 2025/02/25 14:37:49.321536 core.go:153: Processing Vote proposer 0 epoch 18
+[DUBUG] 2025/02/25 14:37:49.321541 core.go:153: Processing Vote proposer 0 epoch 18
+[DUBUG] 2025/02/25 14:37:49.321874 core.go:153: Processing Vote proposer 0 epoch 18
+[DUBUG] 2025/02/25 14:37:49.336403 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.336467 core.go:153: Processing Vote proposer 0 epoch 18
+[DUBUG] 2025/02/25 14:37:49.336554 core.go:130: Processing proposal proposer 0 epoch 19
+[DUBUG] 2025/02/25 14:37:49.337565 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.337602 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.345455 core.go:153: Processing Vote proposer 0 epoch 19
+[DUBUG] 2025/02/25 14:37:49.345478 core.go:153: Processing Vote proposer 0 epoch 19
+[DUBUG] 2025/02/25 14:37:49.345484 core.go:153: Processing Vote proposer 0 epoch 19
+[DUBUG] 2025/02/25 14:37:49.367295 network.go:69: Successfully sent message to 127.0.0.1:6001 
+[DUBUG] 2025/02/25 14:37:49.367449 network.go:69: Successfully sent message to 127.0.0.1:6002 
+[DUBUG] 2025/02/25 14:37:49.367491 network.go:69: Successfully sent message to 127.0.0.1:6003 
+[DUBUG] 2025/02/25 14:37:49.374413 core.go:130: Processing proposal proposer 3 epoch 18
+[DUBUG] 2025/02/25 14:37:49.374429 core.go:153: Processing Vote proposer 0 epoch 19
+[DUBUG] 2025/02/25 14:37:49.374514 core.go:130: Processing proposal proposer 0 epoch 20
+[DUBUG] 2025/02/25 14:37:49.377916 core.go:153: Processing Vote proposer 0 epoch 20
+[DUBUG] 2025/02/25 14:37:49.385119 core.go:153: Processing Vote proposer 0 epoch 20
+[DUBUG] 2025/02/25 14:37:49.385386 core.go:153: Processing Vote proposer 0 epoch 20
+[DUBUG] 2025/02/25 14:37:49.385442 core.go:153: Processing Vote proposer 0 epoch 20

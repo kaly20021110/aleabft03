@@ -1,0 +1,25 @@
+[INFO] 2025/02/25 14:37:48.114211 pool.go:126: Transaction pool queue capacity set to 10000 
+[INFO] 2025/02/25 14:37:48.114269 pool.go:130: Transaction pool tx size set to 250 
+[INFO] 2025/02/25 14:37:48.114274 pool.go:134: Transaction pool batch size set to 500 
+[INFO] 2025/02/25 14:37:48.114277 pool.go:138: Transaction pool tx rate set to 5000 
+[INFO] 2025/02/25 14:37:48.118037 consensus.go:26: Consensus Node ID: 1
+[INFO] 2025/02/25 14:37:48.118063 consensus.go:30: Consensus DDos: false, Faults: 0 
+[INFO] 2025/02/25 14:37:48.118068 consensus.go:34: Protocol: aleabft
+[INFO] 2025/02/25 14:37:48.118072 consensus.go:38: Honest Node
+[INFO] 2025/02/25 14:37:48.118113 consensus.go:51: Waiting for all nodes to be online...
+[INFO] 2025/02/25 14:37:48.610982 network.go:107: Incoming connection established with 127.0.0.1:43818 
+[INFO] 2025/02/25 14:37:48.613263 network.go:107: Incoming connection established with 127.0.0.1:43832 
+[INFO] 2025/02/25 14:37:48.619404 node.go:73: Node 1 successfully booted 
+[INFO] 2025/02/25 14:37:48.619474 pool.go:64: Received Batch 1
+[INFO] 2025/02/25 14:37:48.619481 core.go:116: create Block epoch 0 node 1 batch_id 1 
+[INFO] 2025/02/25 14:37:48.621564 network.go:62: Outgoing connection established with 127.0.0.1:6002 
+[INFO] 2025/02/25 14:37:48.621870 network.go:62: Outgoing connection established with 127.0.0.1:6003 
+[INFO] 2025/02/25 14:37:48.622015 network.go:62: Outgoing connection established with 127.0.0.1:6000 
+[INFO] 2025/02/25 14:37:48.632688 network.go:107: Incoming connection established with 127.0.0.1:43840 
+[INFO] 2025/02/25 14:37:48.632707 network.go:107: Incoming connection established with 127.0.0.1:43852 
+[INFO] 2025/02/25 14:37:48.636411 network.go:107: Incoming connection established with 127.0.0.1:43864 
+[INFO] 2025/02/25 14:37:48.638406 network.go:107: Incoming connection established with 127.0.0.1:43874 
+[INFO] 2025/02/25 14:37:48.702874 core.go:116: create Block epoch 1 node 1 batch_id 1 
+[INFO] 2025/02/25 14:37:48.721036 commitor.go:51: commit Block epoch 0 node 0 batch_id 0 
+[INFO] 2025/02/25 14:37:48.781233 pool.go:64: Received Batch 5
+[INFO] 2025/02/25 14:37:48.781248 core.go:116: create Block epoch 2 node 1 batch_id 5 
