@@ -49,7 +49,7 @@ func NewCore(
 		Aggreator:     NewAggreator(committee, SigService),
 		Commitor:      NewCommittor(callBack),
 		Epoch:         0,
-		LeaderEpoch:   int64(name),
+		LeaderEpoch:   0,
 		abaInstances:  make(map[int64]map[int64]*ABA),
 		boltInstances: make(map[int64]map[core.NodeID]*Bolt),
 		prepareSet:    make(map[int64][]*Prepare),
@@ -125,9 +125,6 @@ func (c *Core) messageFilter(epoch int64) bool {
 
 /**************************** Utils ********************************/
 /**************************** Message Handle ********************************/
-func (c *Core) IndirectCommit() { //间接提交目前这个块前面的所有的块
-
-}
 
 func (c *Core) handleProposal(p *Proposal) error {
 	logger.Debug.Printf("Processing proposal proposer %d epoch %d\n", p.Author, p.Epoch)
@@ -140,7 +137,12 @@ func (c *Core) handleProposal(p *Proposal) error {
 		if err := c.storeBlock(p.B); err != nil {
 			return err
 		}
-		c.Commitor.Commit(p.Epoch, p.Author, p.B) //加入到提交池中
+		//加入到本地队列中
+		if c.commitments[p.Author] == nil {
+			c.commitments[p.Author] = make(map[int64]*Block)
+			c.commitments[p.Author][p.Epoch] = p.B
+		}
+		//c.Commitor.Commit(p.Epoch, p.Author, p.B) //加入到提交池中
 	}
 	go c.getBoltInstance(p.Epoch, p.Author).ProcessProposal(p)
 	return nil
@@ -179,7 +181,7 @@ func (c *Core) handlePrepare(val *Prepare) error {
 	var maxprepare *Prepare
 	if len(c.prepareSet[val.Epoch]) == c.Committee.HightThreshold() {
 		for _, v := range c.prepareSet[val.Epoch] {
-			if v.Epoch > maxprepare.Epoch {
+			if maxprepare == nil || v.Epoch > maxprepare.Epoch {
 				maxprepare = v
 			}
 		}

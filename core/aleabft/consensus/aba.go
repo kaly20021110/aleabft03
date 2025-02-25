@@ -69,6 +69,9 @@ func (aba *ABA) ProcessABAVal(val *ABAVal) {
 	}
 	var cnt int64
 	aba.valMutex.Lock()
+	if aba.valCnt[val.Round] == nil {
+		aba.valCnt[val.Round] = make(map[int64]int64)
+	}
 	aba.valCnt[val.Round][val.Val]++
 	cnt = aba.valCnt[val.Round][val.Val]
 	aba.valMutex.Unlock()
@@ -130,6 +133,10 @@ func (aba *ABA) ProcessABAMux(mux *ABAMux) {
 		}
 	}
 	aba.muxMutex.Unlock()
+
+	if aba.muxCnt[mux.Round] == nil {
+		aba.muxCnt[mux.Round] = make(map[int64]int64)
+	}
 	aba.muxCnt[mux.Round][mux.Val]++
 
 	var Oddvalue, Evenvalue int64

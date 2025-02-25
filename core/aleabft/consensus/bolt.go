@@ -45,6 +45,7 @@ func NewBolt(c *Core, Proposer core.NodeID, Epoch int64, boltCallBack chan *Bolt
 
 // 处理提案消息
 func (instance *Bolt) ProcessProposal(p *Proposal) error {
+	//already recieve
 	if p.Author != instance.Proposer {
 		return nil
 	}
@@ -54,11 +55,15 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 	instance.BMutex.Unlock()
 
 	if p.Epoch >= 1 {
-		if bytes.Equal(p.fullSignature, instance.c.boltInstances[p.Epoch-1][p.Author].fullSignature) {
-			//将上一个块加入到队列中，准备提交
-			instance.c.commitments[p.Author][p.Epoch] = p.B
-			instance.c.Commitor.Commit(p.Epoch-1, p.Author, instance.c.commitments[p.Author][p.Epoch-1])
-			instance.c.storeBlock(instance.c.commitments[p.Author][p.Epoch-1])
+		if bytes.Equal(p.fullSignature, instance.c.getBoltInstance(p.Epoch-1, p.Author).fullSignature) {
+			if instance.c.commitments[p.Author] == nil {
+				instance.c.commitments[p.Author] = make(map[int64]*Block)
+				instance.c.commitments[p.Author][p.Epoch] = p.B
+			}
+			//fast path 01
+			if p.Epoch >= 2 {
+				instance.c.Commitor.Commit(p.Epoch-2, p.Author, instance.c.commitments[p.Author][p.Epoch-2])
+			}
 		}
 	}
 	//创建投票并且将投票发送给leader
@@ -72,7 +77,8 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 }
 
 func (instance *Bolt) ProcessVote(r *Vote) error {
-	if r.Author != instance.Proposer {
+	
+	if r.Proposer != instance.Proposer {
 		return nil
 	}
 	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
@@ -85,7 +91,9 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 			return nil
 		}
 		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
-		instance.c.boltInstances[r.Epoch][r.Author].fullSignature = data
+		//这个赋值是为了比较QC的正确性，但是这个Bolt可能不存在，可能一直没收到proposal
+		instance.c.getBoltInstance(r.Epoch,r.Author).fullSignature = data
+		//instance.c.boltInstances[r.Epoch][r.Author].fullSignature = data
 		instance.c.Epoch = instance.Epoch + 1
 		block := instance.c.generateBlock(instance.c.Epoch)
 		// 提出新的提案

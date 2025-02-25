@@ -130,7 +130,7 @@ func (r *Vote) Verify(committee core.Committee) bool { //验证部分签名的�
 
 func (r *Vote) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Author)))
+	//hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Author)))
 	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Proposer)))
 	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Epoch)))
 	d := r.B.Hash()
