@@ -108,6 +108,8 @@ class NodeParameters:
             json['consensus']['protocol'] = 2
         elif protocol == "Mercury":
             json['consensus']['protocol'] = 3
+        elif protocol == "aleabft":
+            json['consensus']['protocol'] = 4
         else:
             raise ConfigError(f'invaild protocol type: {protocol}')
         
