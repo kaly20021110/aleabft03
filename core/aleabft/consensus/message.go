@@ -370,6 +370,84 @@ func (h *ABAHalt) MsgType() int {
 
 /**************************** ABAHaltType ********************************/
 
+type AskVal struct {
+	Author    core.NodeID //提出请求的人
+	Leader    core.NodeID //想要这个人的对应区块
+	Height    int64       //高度
+	Signature crypto.Signature
+}
+
+func NewAskVal(Author, Leader core.NodeID, Height int64, sigService *crypto.SigService) (*AskVal, error) {
+	h := &AskVal{
+		Author: Author,
+		Leader: Leader,
+		Height: Height,
+	}
+	sig, err := sigService.RequestSignature(h.Hash())
+	if err != nil {
+		return nil, err
+	}
+	h.Signature = sig
+	return h, nil
+}
+
+func (h *AskVal) Verify(committee core.Committee) bool {
+	pub := committee.Name(h.Author)
+	return h.Signature.Verify(pub, h.Hash())
+}
+
+func (h *AskVal) Hash() crypto.Digest {
+	hasher := crypto.NewHasher()
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Author)))
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Leader)))
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Height)))
+	return hasher.Sum256(nil)
+}
+
+func (h *AskVal) MsgType() int {
+	return AskValType
+}
+
+type AnswerVal struct {
+	Author    core.NodeID //给予帮助的人
+	Leader    core.NodeID //传递给的人
+	Height    int64       //高度lock
+	B         *Block
+	Signature crypto.Signature
+}
+
+func NewAnswerVal(Author, Leader core.NodeID, Height int64, block *Block, sigService *crypto.SigService) (*AnswerVal, error) {
+	h := &AnswerVal{
+		Author: Author,
+		Leader: Leader,
+		Height: Height,
+		B:      block,
+	}
+	sig, err := sigService.RequestSignature(h.Hash())
+	if err != nil {
+		return nil, err
+	}
+	h.Signature = sig
+	return h, nil
+}
+
+func (h *AnswerVal) Verify(committee core.Committee) bool {
+	pub := committee.Name(h.Author)
+	return h.Signature.Verify(pub, h.Hash())
+}
+
+func (h *AnswerVal) Hash() crypto.Digest {
+	hasher := crypto.NewHasher()
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Author)))
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Leader)))
+	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Height)))
+	return hasher.Sum256(nil)
+}
+
+func (h *AnswerVal) MsgType() int {
+	return AnswerValType
+}
+
 const (
 	ProposalType = iota
 	VoteType
@@ -378,6 +456,8 @@ const (
 	ABAMuxType
 	CoinShareType
 	ABAHaltType
+	AskValType
+	AnswerValType
 )
 
 var DefaultMessageTypeMap = map[int]reflect.Type{
@@ -388,4 +468,7 @@ var DefaultMessageTypeMap = map[int]reflect.Type{
 	ABAMuxType:    reflect.TypeOf(ABAMux{}),
 	CoinShareType: reflect.TypeOf(CoinShare{}),
 	ABAHaltType:   reflect.TypeOf(ABAHalt{}),
+	AskValType:    reflect.TypeOf(AskVal{}),
+	AnswerValType: reflect.TypeOf(AnswerVal{}),
 }
+

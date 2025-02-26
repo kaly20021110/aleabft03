@@ -24,9 +24,9 @@ func NewCommittor(callBack chan<- struct{}) *Committor {
 }
 
 func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
-	if epoch < c.Index {
-		return
-	}
+	// if epoch < c.Index {
+	// 	return
+	// }
 	if block == nil {
 		return
 	}

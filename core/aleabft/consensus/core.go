@@ -173,6 +173,7 @@ func (c *Core) invokeABA() error {
 	if lens>=2{
 		for i:=c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))];i<=int64(lens-2);i++{
 			c.Commitor.Commit(i, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i])
+			logger.Error.Printf("commit height %d node %d batchid %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i].Batch.ID)
 		}
 		c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens-1)
 	}
@@ -246,30 +247,71 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 	}
 	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
 
+
 	return c.handleOutput(halt.Val, halt.Leader)
+}
+
+
+func (c *Core) handleAsk(ask *AskVal) error{
+	if c.commitments[ask.Leader][ask.Height]!=nil{
+		answerVal, _ := NewAnswerVal(c.Name, ask.Leader, ask.Height, c.commitments[ask.Leader][ask.Height],c.SigService)
+		c.Transimtor.Send(c.Name, ask.Author, answerVal)
+		c.Transimtor.RecvChannel() <- answerVal
+	}
+	return nil
+}
+
+func (c *Core) handleAnswer(ans *AnswerVal) error{
+	if c.commitments[ans.Leader][ans.Height] !=nil{
+		return nil
+	}else{
+		c.commitments[ans.Leader][ans.Height]=ans.B
+	}
+	return nil
 }
 
 func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //ABA commit只需要决定是commit一个块还是两个块
 	for i:=c.abaHeight[leader];i<=epoch;i++{
-		c.Commitor.Commit(i, leader, c.commitments[leader][i])
-		
-		// cbc := c.getBoltInstance(i, leader)
-		// if cbc.BlockHash != nil {
-		// 	if block, err := c.getBlock(*cbc.BlockHash); err != nil {
-		// 		logger.Warn.Println(err)
-		// 		c.Commitor.Commit(epoch, leader, nil)
-		// 	} else {
-		// 		c.Commitor.Commit(epoch, leader, block)
-		// 		if block.Proposer != c.Name {
-		// 			temp := c.getBoltInstance(epoch, c.Name).BlockHash
-		// 			if temp != nil {
-		// 				if block, err := c.getBlock(*temp); err == nil && block != nil {
-		// 					c.TxPool.PutBatch(block.Batch)
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
+		//有可能c.commitments[leader][i]没有，那么就要向别人去要这个值
+		if c.commitments[leader][i]!=nil{
+			c.Commitor.Commit(i, leader, c.commitments[leader][i])
+		}else{  //这个地方如何去找别人要这个值，需要认真考虑一下
+			for{
+				askVal, _ := NewAskVal(c.Name, leader, i, c.SigService)
+				c.Transimtor.Send(c.Name, core.NONE, askVal)
+				c.Transimtor.RecvChannel() <- askVal
+				if c.commitments[leader][i]!=nil{
+					c.Commitor.Commit(i, leader, c.commitments[leader][i])
+					break
+				}
+			}
+			// cbc := c.getBoltInstance(i, leader)
+			// if cbc.BlockHash != nil {
+			// 	if block, err := c.getBlock(*cbc.BlockHash); err != nil {
+			// 		logger.Warn.Println(err)
+			// 		c.Commitor.Commit(i, leader, nil)
+			// 	} else {
+			// 		c.Commitor.Commit(i, leader, block)
+			// 		if block.Proposer != c.Name {
+			// 			temp := c.getBoltInstance(epoch, c.Name).BlockHash
+			// 			if temp != nil {
+			// 				if block, err := c.getBlock(*temp); err == nil && block != nil {
+			// 					c.TxPool.PutBatch(block.Batch)
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
+
+			// cbc := c.getBoltInstance(i, leader)
+			// if cbc.BlockHash==nil{
+
+			// }
+			// block,_:=c.getBlock(*cbc.BlockHash)
+			// c.commitments[leader][i]=block
+			// c.Commitor.Commit(i, leader, c.commitments[leader][i])
+		}
+		logger.Error.Printf("aba final commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
 	}
 	c.abaHeight[leader]=int64(epoch+1)
 	c.abvanceNextABAEpoch(c.LeaderEpoch + 1)
@@ -329,6 +371,10 @@ func (c *Core) Run() {
 					err = c.handleCoinShare(msg.(*CoinShare))
 				case ABAHaltType:
 					err = c.handleABAHalt(msg.(*ABAHalt))
+				case AskValType:
+					err=c.handleAsk(msg.(*AskVal))
+				case AnswerValType:
+					err=c.handleAnswer(msg.(*AnswerVal))
 				}
 			}
 			// case boltBack := <-c.BoltCallBack:
