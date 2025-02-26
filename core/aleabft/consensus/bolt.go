@@ -57,24 +57,24 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 
 	if p.Epoch >= 1 {
 		if bytes.Equal(p.fullSignature, instance.c.getBoltInstance(p.Epoch-1, p.Author).fullSignature) {
+			//logger.Info.Printf("begining to commit epoch %d node %d batch_id %d \n",p.Epoch-1, p.Author,instance.c.commitments[p.Author][p.Epoch-1].Batch.ID)
 			if instance.c.commitments[p.Author] == nil {
 				instance.c.commitments[p.Author] = make(map[int64]*Block)
-				instance.c.commitments[p.Author][p.Epoch] = p.B
 			}
-			//fast path 快速路径，当目前没有进行ABA时，可以直接提案commit块  
+			instance.c.commitments[p.Author][p.Epoch] = p.B
+			//fast path 快速路径，当目前没有进行ABA时，可以直接提案commit块 这个是不对的，因为这样总的顺序必定有问题，每个人提交的顺序绝对不一样 
 			if p.Epoch >= 2 {
 				if core.NodeID(instance.c.LeaderEpoch%int64(instance.c.Committee.Size())) != p.Author {
 					for i:=instance.c.abaHeight[p.Author];i<=p.Epoch-2;i++{//直接提交和间接提交
 						instance.c.Commitor.Commit(i, p.Author, instance.c.commitments[p.Author][i])
 					}
-					instance.c.abaHeight[p.Author]=p.Epoch-2
-					//instance.c.Commitor.Commit(p.Epoch-2, p.Author, instance.c.commitments[p.Author][p.Epoch-2])
+					instance.c.abaHeight[p.Author]=p.Epoch-1
 				}
 			}
 		}
 	}
 	//创建投票并且将投票发送给leader
-	ready, _ := NewVote(instance.c.Name, instance.Proposer, instance.Epoch, p.B, instance.c.SigService)
+	ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
 	if instance.c.Name == instance.Proposer {
 		instance.c.Transimtor.RecvChannel() <- ready
 	} else {
@@ -90,6 +90,7 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 	}
 	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
 	cnts := len(instance.voteShares[r.Epoch])          //2f+1个vote消息
+	// logger.Error.Printf("begining to generate blocks epoch%d counting %d\n", r.Epoch, cnts)
 	if cnts == instance.c.Committee.HightThreshold() { //生成2f+1的聚合签名
 		//make real proposal
 		data, err := crypto.CombineIntactTSPartial(instance.voteShares[r.Epoch], instance.c.SigService.ShareKey, r.Hash())
@@ -100,6 +101,7 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
 		instance.c.getBoltInstance(r.Epoch,r.Author).fullSignature = data
 		instance.c.Epoch = instance.Epoch + 1
+		// logger.Error.Printf("entering next epoch and begining to generate blocks epoch%d \n", instance.c.Epoch)
 		block := instance.c.generateBlock(instance.c.Epoch)
 		// 提出新的提案
 		proposal, _ := NewProposal(instance.c.Name, block, instance.Epoch+1, instance.c.SigService)
