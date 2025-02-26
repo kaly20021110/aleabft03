@@ -62,15 +62,6 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 				instance.c.commitments[p.Author] = make(map[int64]*Block)
 			}
 			instance.c.commitments[p.Author][p.Epoch] = p.B
-			//fast path 快速路径，当目前没有进行ABA时，可以直接提案commit块 这个是不对的，因为这样总的顺序必定有问题，每个人提交的顺序绝对不一样 
-			if p.Epoch >= 2 {
-				if core.NodeID(instance.c.LeaderEpoch%int64(instance.c.Committee.Size())) != p.Author {
-					for i:=instance.c.abaHeight[p.Author];i<=p.Epoch-2;i++{//直接提交和间接提交
-						instance.c.Commitor.Commit(i, p.Author, instance.c.commitments[p.Author][i])
-					}
-					instance.c.abaHeight[p.Author]=p.Epoch-1
-				}
-			}
 		}
 	}
 	//创建投票并且将投票发送给leader
