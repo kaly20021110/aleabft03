@@ -25,6 +25,10 @@ type Core struct {
 	boltInstances map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
 	prepareSet    map[int64][]*Prepare             //存储每个Epoch的Prepare消息
 	commitments   map[core.NodeID]map[int64]*Block //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
+	uncommitBlocks []struct{
+		leader core.NodeID
+		height int64
+	}
 	BoltCallBack  chan *BoltBack
 	abaCallBack   chan *ABABack
 }
@@ -56,6 +60,10 @@ func NewCore(
 		boltInstances: make(map[int64]map[core.NodeID]*Bolt),
 		prepareSet:    make(map[int64][]*Prepare),
 		commitments:   make(map[core.NodeID]map[int64]*Block),
+		uncommitBlocks: make([]struct {
+			leader   core.NodeID
+			height int64
+		},0),
 		BoltCallBack:  make(chan *BoltBack, 1000),
 		abaCallBack:   make(chan *ABABack, 1000),
 	}
@@ -163,21 +171,55 @@ func (c *Core) handleVote(r *Vote) error {
 func (c *Core) invokeABA() error {
 	lens := 0
 	if blockMap, exists := c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]; exists {
-		lens = len(blockMap) -1
-		if lens < 0{
-			lens = 0
-		}
+		lens = len(blockMap)
 	}
 	//记录每个人在每条队列上的参与ABA的高度
 	//快速路径提前提交，不用等到ABA结束提交 fastpath
-	if lens>=2{
-		for i:=c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))];i<=int64(lens-2);i++{
-			c.Commitor.Commit(i, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i])
-			logger.Error.Printf("commit height %d node %d batchid %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i].Batch.ID)
+	if lens>2{
+		//检查是否还有没有提交完的块
+		for i:=0;i< len(c.uncommitBlocks);i++{
+			name:= c.uncommitBlocks[i].leader
+			height :=c.uncommitBlocks[i].height
+			if c.commitments[name][height]!=nil{
+				c.Commitor.Commit(height, name, c.commitments[name][height])
+				//在map中删除这个元素
+				c.uncommitBlocks=append(c.uncommitBlocks[:i],c.uncommitBlocks[i+1:]...)
+				i--
+				//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",height,name, c.commitments[name][height].Batch.ID)
+			}else{
+				break
+			}
 		}
-		c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens-1)
+		for i:=c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))];i<int64(lens-2);i++{
+			if c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i]==nil{
+				logger.Error.Printf("fast commit error commit height %d node %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())))
+					//往uncommit集合中加入这个元素
+				c.uncommitBlocks = append(c.uncommitBlocks, struct{
+					leader core.NodeID
+					height int64
+				}{
+					leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())), 
+					height: i, 
+				})
+			}else{
+				if len(c.uncommitBlocks)==0{
+					c.Commitor.Commit(i, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i])
+					//logger.Error.Printf("commit height %d node %d batchid %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i].Batch.ID)	
+				}else{
+					//加入uncommit集合中
+					c.uncommitBlocks = append(c.uncommitBlocks, struct{
+						leader core.NodeID
+						height int64
+					}{
+						leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())), 
+						height: i, 
+					})
+				}
+				}
+			}
+		c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens-2)
 	}
-	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, int64(lens), c.SigService)
+	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, max(int64(lens-1),0), c.SigService)//传递的是高度为h-1的块，因为最高块可能只有自己收到了
 	c.Transimtor.Send(c.Name, core.NONE, prepare)
 	c.Transimtor.RecvChannel() <- prepare
 	return nil
@@ -254,7 +296,7 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 
 func (c *Core) handleAsk(ask *AskVal) error{
 	if c.commitments[ask.Leader][ask.Height]!=nil{
-		logger.Error.Printf("send value to  %d height %d node %d\n",ask.Author,ask.Height,ask.Leader)
+		//logger.Error.Printf("send value to  %d height %d node %d\n",ask.Author,ask.Height,ask.Leader)
 		answerVal, _ := NewAnswerVal(c.Name, ask.Leader, ask.Height, c.commitments[ask.Leader][ask.Height],c.SigService)
 		c.Transimtor.Send(c.Name, core.NONE, answerVal)
 		c.Transimtor.RecvChannel() <- answerVal
@@ -263,7 +305,7 @@ func (c *Core) handleAsk(ask *AskVal) error{
 }
 
 func (c *Core) handleAnswer(ans *AnswerVal) error{
-	logger.Error.Printf("recieve help  value from   %d height %d node %d\n",ans.Author,ans.Height,ans.Leader)
+	//logger.Error.Printf("recieve help  value from   %d height %d node %d\n",ans.Author,ans.Height,ans.Leader)
 	if c.commitments[ans.Leader][ans.Height] !=nil{
 		return nil
 	}else{
@@ -273,23 +315,48 @@ func (c *Core) handleAnswer(ans *AnswerVal) error{
 }
 
 func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //ABA commit只需要决定是commit一个块还是两个块
+	for i:=0;i< len(c.uncommitBlocks);i++{
+		name:= c.uncommitBlocks[i].leader
+		height :=c.uncommitBlocks[i].height
+		if c.commitments[name][height]!=nil{
+			c.Commitor.Commit(height, name, c.commitments[name][height])
+			//在map中删除这个元素
+			c.uncommitBlocks=append(c.uncommitBlocks[:i],c.uncommitBlocks[i+1:]...)
+			i--
+			//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",height,leader, c.commitments[name][height].Batch.ID)
+		}else{
+			break
+		}
+	}
 	for i:=c.abaHeight[leader];i<=epoch;i++{
 		//有可能c.commitments[leader][i]没有，那么就要向别人去要这个值
 		if c.commitments[leader][i]!=nil{
-			c.Commitor.Commit(i, leader, c.commitments[leader][i])
-			logger.Error.Printf("aba final commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
-		}else{  
-				//logger.Error.Printf("ask for commit height %d node %d\n",i,leader)
-				askVal, _ := NewAskVal(c.Name, leader, i, c.SigService)
-				c.Transimtor.Send(c.Name, core.NONE, askVal)
-				c.Transimtor.RecvChannel() <- askVal
-				if c.commitments[leader][i]!=nil{
-					//logger.Error.Printf("got the value commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
-					c.Commitor.Commit(i, leader, c.commitments[leader][i])
-					logger.Error.Printf("aba final commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
-				}else{
-					i= i-1
-				}
+			if len(c.uncommitBlocks)==0{
+				c.Commitor.Commit(i, leader, c.commitments[leader][i])
+				//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
+			}else{
+					//加入uncommit集合中
+					c.uncommitBlocks = append(c.uncommitBlocks, struct{
+						leader core.NodeID
+						height int64
+					}{
+						leader: leader, 
+						height: i, 
+					})
+			}
+			
+		}else{
+			askVal, _ := NewAskVal(c.Name, leader, i, c.SigService)
+			c.Transimtor.Send(c.Name, core.NONE, askVal)
+			c.Transimtor.RecvChannel() <- askVal
+			//把这个暂时不能提交的元素加入到数组中
+			c.uncommitBlocks = append(c.uncommitBlocks, struct{
+				leader core.NodeID
+				height int64
+			}{
+				leader: leader, 
+				height: i, 
+			})
 		}
 	}
 	c.abaHeight[leader]=int64(epoch+1)
