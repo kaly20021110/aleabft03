@@ -57,11 +57,11 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 
 	if p.Epoch >= 1 {
 		if bytes.Equal(p.fullSignature, instance.c.getBoltInstance(p.Epoch-1, p.Author).fullSignature) {
-			//logger.Info.Printf("begining to commit epoch %d node %d batch_id %d \n",p.Epoch-1, p.Author,instance.c.commitments[p.Author][p.Epoch-1].Batch.ID)
 			if instance.c.commitments[p.Author] == nil {
 				instance.c.commitments[p.Author] = make(map[int64]*Block)
 			}
 			instance.c.commitments[p.Author][p.Epoch] = p.B
+			logger.Debug.Printf("%d new vote for epoch %d node %d batch_id %d \n",instance.c.Name,p.Epoch, p.Author,instance.c.commitments[p.Author][p.Epoch].Batch.ID)
 			ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
 			if instance.c.Name == instance.Proposer {
 				instance.c.Transimtor.RecvChannel() <- ready
@@ -84,6 +84,14 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 	if r.Proposer != instance.Proposer {
 		return nil
 	}
+	//如果当前的人不是leader
+	if instance.Proposer!=instance.c.Name{
+		return nil
+	}
+	//处理人不是本人
+	if r.Proposer!=instance.c.Name{
+		return nil
+	}
 	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
 	cnts := len(instance.voteShares[r.Epoch])          //2f+1个vote消息
 	//logger.Error.Printf("receiving vote epoch%d counting %d\n", r.Epoch, cnts)
@@ -95,12 +103,13 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 			return nil
 		}
 		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
-		instance.c.getBoltInstance(r.Epoch,r.Author).fullSignature = data
+		instance.c.getBoltInstance(r.Epoch,r.Proposer).fullSignature = data
+		//进入下一个阶段
 		instance.c.Epoch = instance.Epoch + 1
-		logger.Error.Printf("entering next epoch and begining to generate blocks epoch%d \n", instance.c.Epoch)
+		//logger.Error.Printf("entering next epoch and begining to generate blocks epoch%d \n", instance.c.Epoch)
 		block := instance.c.generateBlock(instance.c.Epoch)
 		// 提出新的提案
-		proposal, _ := NewProposal(instance.c.Name, block, instance.Epoch+1, instance.c.SigService)
+		proposal, _ := NewProposal(instance.c.Name, block, instance.c.Epoch, instance.c.SigService)
 		proposal.fullSignature = instance.fullSignature
 		instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
 		instance.c.Transimtor.RecvChannel() <- proposal

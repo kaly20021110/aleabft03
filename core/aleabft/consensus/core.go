@@ -9,28 +9,28 @@ import (
 )
 
 type Core struct {
-	Name          core.NodeID
-	Committee     core.Committee
-	Parameters    core.Parameters
-	SigService    *crypto.SigService
-	Store         *store.Store
-	TxPool        *pool.Pool
-	Transimtor    *core.Transmitor
-	Aggreator     *Aggreator //用于聚合签名 coin的生成
-	Commitor      *Committor //用于提交提案block
-	Epoch         int64   //用于CBC
-	LeaderEpoch   int64 	//用于ABA
-	abaHeight     map[core.NodeID]int64//存储每个ABA开始的位置，在ABA结束之前不能提前提交
-	abaInstances  map[int64]map[int64]*ABA         //aba实例的二维数组 ID epoch
-	boltInstances map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
-	prepareSet    map[int64][]*Prepare             //存储每个Epoch的Prepare消息
-	commitments   map[core.NodeID]map[int64]*Block //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
-	uncommitBlocks []struct{
+	Name           core.NodeID
+	Committee      core.Committee
+	Parameters     core.Parameters
+	SigService     *crypto.SigService
+	Store          *store.Store
+	TxPool         *pool.Pool
+	Transimtor     *core.Transmitor
+	Aggreator      *Aggreator                       //用于聚合签名 coin的生成
+	Commitor       *Committor                       //用于提交提案block
+	Epoch          int64                            //用于CBC
+	LeaderEpoch    int64                            //用于ABA
+	abaHeight      map[core.NodeID]int64            //存储每个ABA开始的位置，在ABA结束之前不能提前提交
+	abaInstances   map[int64]map[int64]*ABA         //aba实例的二维数组 ID epoch
+	boltInstances  map[int64]map[core.NodeID]*Bolt  //Bolt实例的二维数组 ID epoch
+	prepareSet     map[int64][]*Prepare             //存储每个Epoch的Prepare消息
+	commitments    map[core.NodeID]map[int64]*Block //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
+	uncommitBlocks []struct {
 		leader core.NodeID
 		height int64
 	}
-	BoltCallBack  chan *BoltBack
-	abaCallBack   chan *ABABack
+	BoltCallBack chan *BoltBack
+	abaCallBack  chan *ABABack
 }
 
 func NewCore(
@@ -61,11 +61,11 @@ func NewCore(
 		prepareSet:    make(map[int64][]*Prepare),
 		commitments:   make(map[core.NodeID]map[int64]*Block),
 		uncommitBlocks: make([]struct {
-			leader   core.NodeID
+			leader core.NodeID
 			height int64
-		},0),
-		BoltCallBack:  make(chan *BoltBack, 1000),
-		abaCallBack:   make(chan *ABABack, 1000),
+		}, 0),
+		BoltCallBack: make(chan *BoltBack, 1000),
+		abaCallBack:  make(chan *ABABack, 1000),
 	}
 	return core
 }
@@ -143,7 +143,6 @@ func (c *Core) handleProposal(p *Proposal) error {
 	logger.Debug.Printf("Processing proposal proposer %d epoch %d\n", p.Author, p.Epoch)
 	if p.Epoch == 0 { //如果是创世纪块，直接给fullsignature赋值为全零数组的默认值
 		p.fullSignature = make([]byte, 32) // 创建一个长度为 32 的字节切片，默认值为 0
-		//如果是创世纪块可以直接加入队列 把block先存进队列中
 		if err := c.storeBlock(p.B); err != nil {
 			return err
 		}
@@ -151,16 +150,17 @@ func (c *Core) handleProposal(p *Proposal) error {
 		if c.commitments[p.Author] == nil {
 			c.commitments[p.Author] = make(map[int64]*Block)
 			c.commitments[p.Author][p.Epoch] = p.B
+		} else {
+			c.commitments[p.Author][p.Epoch] = p.B
 		}
 	}
-	// c.commitments[p.Author][p.Epoch] = p.B
 	go c.getBoltInstance(p.Epoch, p.Author).ProcessProposal(p)
 	return nil
 }
 
 // 处理投票消息
 func (c *Core) handleVote(r *Vote) error {
-	logger.Debug.Printf("Processing Vote proposer %d epoch %d\n", r.Proposer, r.Epoch)
+	logger.Debug.Printf("Processing Vote proposer %d epoch %d from %d\n", r.Proposer, r.Epoch, r.Author)
 	if c.messageFilter(r.Epoch) {
 		return nil
 	}
@@ -175,51 +175,52 @@ func (c *Core) invokeABA() error {
 	}
 	//记录每个人在每条队列上的参与ABA的高度
 	//快速路径提前提交，不用等到ABA结束提交 fastpath
-	if lens>2{
+	if lens > 2 {
 		//检查是否还有没有提交完的块
-		for i:=0;i< len(c.uncommitBlocks);i++{
-			name:= c.uncommitBlocks[i].leader
-			height :=c.uncommitBlocks[i].height
-			if c.commitments[name][height]!=nil{
+		for i := 0; i < len(c.uncommitBlocks); i++ {
+			logger.Debug.Printf("entering next aba but still have uncommitblocks")
+			name := c.uncommitBlocks[i].leader
+			height := c.uncommitBlocks[i].height
+			if c.commitments[name][height] != nil {
 				c.Commitor.Commit(height, name, c.commitments[name][height])
 				//在map中删除这个元素
-				c.uncommitBlocks=append(c.uncommitBlocks[:i],c.uncommitBlocks[i+1:]...)
+				c.uncommitBlocks = append(c.uncommitBlocks[:i], c.uncommitBlocks[i+1:]...)
 				i--
 				//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",height,name, c.commitments[name][height].Batch.ID)
-			}else{
+			} else {
 				break
 			}
 		}
-		for i:=c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))];i<int64(lens-2);i++{
-			if c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i]==nil{
-				logger.Error.Printf("fast commit error commit height %d node %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())))
-					//往uncommit集合中加入这个元素
-				c.uncommitBlocks = append(c.uncommitBlocks, struct{
+		for i := c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]; i < int64(lens-2); i++ {
+			if c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i] == nil {
+				logger.Error.Printf("fast commit error commit height %d node %d\n", i, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())))
+				//往uncommit集合中加入这个元素
+				c.uncommitBlocks = append(c.uncommitBlocks, struct {
 					leader core.NodeID
 					height int64
 				}{
-					leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())), 
-					height: i, 
+					leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())),
+					height: i,
 				})
-			}else{
-				if len(c.uncommitBlocks)==0{
+			} else {
+				if len(c.uncommitBlocks) == 0 {
 					c.Commitor.Commit(i, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i])
-					//logger.Error.Printf("commit height %d node %d batchid %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i].Batch.ID)	
-				}else{
+					//logger.Error.Printf("commit height %d node %d batchid %d\n",i,core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.commitments[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))][i].Batch.ID)
+				} else {
 					//加入uncommit集合中
-					c.uncommitBlocks = append(c.uncommitBlocks, struct{
+					c.uncommitBlocks = append(c.uncommitBlocks, struct {
 						leader core.NodeID
 						height int64
 					}{
-						leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())), 
-						height: i, 
+						leader: core.NodeID(c.LeaderEpoch % int64(c.Committee.Size())),
+						height: i,
 					})
 				}
-				}
 			}
-		c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))]=int64(lens-2)
+		}
+		c.abaHeight[core.NodeID(c.LeaderEpoch%int64(c.Committee.Size()))] = int64(lens - 2)
 	}
-	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, max(int64(lens-1),0), c.SigService)//传递的是高度为h-1的块，因为最高块可能只有自己收到了
+	prepare, _ := NewPrepare(c.Name, core.NodeID(c.LeaderEpoch%int64(c.Committee.Size())), c.LeaderEpoch, max(int64(lens-1), 0), c.SigService) //传递的是高度为h-1的块，因为最高块可能只有自己收到了
 	c.Transimtor.Send(c.Name, core.NONE, prepare)
 	c.Transimtor.RecvChannel() <- prepare
 	return nil
@@ -289,77 +290,79 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 	}
 	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
 
-
 	return c.handleOutput(halt.Val, halt.Leader)
 }
 
-
-func (c *Core) handleAsk(ask *AskVal) error{
-	if c.commitments[ask.Leader][ask.Height]!=nil{
+func (c *Core) handleAsk(ask *AskVal) error {
+	if c.commitments[ask.Leader][ask.Height] != nil {
 		//logger.Error.Printf("send value to  %d height %d node %d\n",ask.Author,ask.Height,ask.Leader)
-		answerVal, _ := NewAnswerVal(c.Name, ask.Leader, ask.Height, c.commitments[ask.Leader][ask.Height],c.SigService)
+		answerVal, _ := NewAnswerVal(c.Name, ask.Leader, ask.Height, c.commitments[ask.Leader][ask.Height], c.SigService)
 		c.Transimtor.Send(c.Name, core.NONE, answerVal)
 		c.Transimtor.RecvChannel() <- answerVal
 	}
 	return nil
 }
 
-func (c *Core) handleAnswer(ans *AnswerVal) error{
+func (c *Core) handleAnswer(ans *AnswerVal) error {
 	//logger.Error.Printf("recieve help  value from   %d height %d node %d\n",ans.Author,ans.Height,ans.Leader)
-	if c.commitments[ans.Leader][ans.Height] !=nil{
+	if c.commitments[ans.Leader][ans.Height] != nil {
 		return nil
-	}else{
-		c.commitments[ans.Leader][ans.Height]=ans.B
+	} else {
+		c.commitments[ans.Leader][ans.Height] = ans.B
 	}
 	return nil
 }
 
 func (c *Core) handleOutput(epoch int64, leader core.NodeID) error { //ABA commit只需要决定是commit一个块还是两个块
-	for i:=0;i< len(c.uncommitBlocks);i++{
-		name:= c.uncommitBlocks[i].leader
-		height :=c.uncommitBlocks[i].height
-		if c.commitments[name][height]!=nil{
+	for i := 0; i < len(c.uncommitBlocks); i++ {
+		logger.Debug.Printf("aba finished but still have uncommitblocks")
+		name := c.uncommitBlocks[i].leader
+		height := c.uncommitBlocks[i].height
+		if c.commitments[name][height] != nil {
 			c.Commitor.Commit(height, name, c.commitments[name][height])
 			//在map中删除这个元素
-			c.uncommitBlocks=append(c.uncommitBlocks[:i],c.uncommitBlocks[i+1:]...)
+			c.uncommitBlocks = append(c.uncommitBlocks[:i], c.uncommitBlocks[i+1:]...)
 			i--
 			//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",height,leader, c.commitments[name][height].Batch.ID)
-		}else{
+		} else {
 			break
 		}
 	}
-	for i:=c.abaHeight[leader];i<=epoch;i++{
+	for i := c.abaHeight[leader]; i <= epoch; i++ {
 		//有可能c.commitments[leader][i]没有，那么就要向别人去要这个值
-		if c.commitments[leader][i]!=nil{
-			if len(c.uncommitBlocks)==0{
+		if c.commitments[leader][i] != nil {
+			if len(c.uncommitBlocks) == 0 {
 				c.Commitor.Commit(i, leader, c.commitments[leader][i])
 				//logger.Error.Printf("aba final commit height %d node %d batchid %d\n",i,leader, c.commitments[leader][i].Batch.ID)
-			}else{
-					//加入uncommit集合中
-					c.uncommitBlocks = append(c.uncommitBlocks, struct{
-						leader core.NodeID
-						height int64
-					}{
-						leader: leader, 
-						height: i, 
-					})
+			} else {
+				//加入uncommit集合中
+				c.uncommitBlocks = append(c.uncommitBlocks, struct {
+					leader core.NodeID
+					height int64
+				}{
+					leader: leader,
+					height: i,
+				})
 			}
-			
-		}else{
+
+		} else {
+			//这里还不一定能要到
+			logger.Debug.Printf("ask val from %d epoch %d", leader, i)
 			askVal, _ := NewAskVal(c.Name, leader, i, c.SigService)
 			c.Transimtor.Send(c.Name, core.NONE, askVal)
 			c.Transimtor.RecvChannel() <- askVal
+
 			//把这个暂时不能提交的元素加入到数组中
-			c.uncommitBlocks = append(c.uncommitBlocks, struct{
+			c.uncommitBlocks = append(c.uncommitBlocks, struct {
 				leader core.NodeID
 				height int64
 			}{
-				leader: leader, 
-				height: i, 
+				leader: leader,
+				height: i,
 			})
 		}
 	}
-	c.abaHeight[leader]=int64(epoch+1)
+	c.abaHeight[leader] = int64(epoch + 1)
 	c.abvanceNextABAEpoch(c.LeaderEpoch + 1)
 	return nil
 }
@@ -418,9 +421,9 @@ func (c *Core) Run() {
 				case ABAHaltType:
 					err = c.handleABAHalt(msg.(*ABAHalt))
 				case AskValType:
-					err=c.handleAsk(msg.(*AskVal))
+					err = c.handleAsk(msg.(*AskVal))
 				case AnswerValType:
-					err=c.handleAnswer(msg.(*AnswerVal))
+					err = c.handleAnswer(msg.(*AnswerVal))
 				}
 			}
 			// case boltBack := <-c.BoltCallBack:

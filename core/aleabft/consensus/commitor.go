@@ -6,7 +6,7 @@ import (
 )
 
 type Committor struct {
-	Index        int64
+	Index        map[core.NodeID]int64 //对应的index
 	commitBlocks map[int64]map[core.NodeID]*Block
 	commitCh     chan *Block
 	callBack     chan<- struct{}
@@ -14,7 +14,7 @@ type Committor struct {
 
 func NewCommittor(callBack chan<- struct{}) *Committor {
 	c := &Committor{
-		Index:        0,
+		Index:        make(map[core.NodeID]int64),
 		commitBlocks: make(map[int64]map[core.NodeID]*Block),
 		commitCh:     make(chan *Block, 100),
 		callBack:     callBack,
@@ -24,9 +24,9 @@ func NewCommittor(callBack chan<- struct{}) *Committor {
 }
 
 func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
-	// if epoch < c.Index {
-	// 	return
-	// }
+	if epoch < c.Index[leader] {
+		return
+	}
 	if block == nil {
 		return
 	}
@@ -35,10 +35,10 @@ func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
 	}
 	c.commitBlocks[epoch][leader] = block
 	for {
-		if block, ok := c.commitBlocks[c.Index][leader]; ok {
+		if block, ok := c.commitBlocks[c.Index[leader]][leader]; ok {
 			c.commitCh <- block
-			delete(c.commitBlocks, c.Index)
-			c.Index++
+			delete(c.commitBlocks, c.Index[leader])
+			c.Index[leader]++
 		} else {
 			break
 		}
