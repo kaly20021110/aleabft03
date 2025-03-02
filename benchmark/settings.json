@@ -1,7 +1,7 @@
 {
     "key": {
-        "name": "dcz",
-        "path": "/root/.ssh/id_rsa",
+        "name": "zj",
+        "path": "/root/.ssh/Aliyun",
         "accesskey": "/root/.aliyun/access.json"
     },
     "ports": {
@@ -10,9 +10,9 @@
     "instances": {
         "type": "ecs.g6e.xlarge",
         "regions": [
-            "eu-central-1",
-            "ap-northeast-2",
             "ap-southeast-1",
+            "eu-west-1",
+            "eu-central-1",
             "us-east-1"
         ]
     }

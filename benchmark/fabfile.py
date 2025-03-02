@@ -114,7 +114,7 @@ def remote(ctx):
         'rate': 3_000,                    # tx send rate
         'batch_size': [ 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536],              # the max number of tx that can be hold 
         'log_level': 0b0001,              # 0x1 infolevel 0x2 debuglevel 0x4 warnlevel 0x8 errorlevel
-        'protocol': "vaba",
+        'protocol': "aleabft",
         'runs': 1
     }
     node_params = {
@@ -131,7 +131,7 @@ def remote(ctx):
             "ddos": False,              # DDOS attack
             "faults": 2,                # the number of byzantine node
             "retry_delay": 5_000,        # request block period
-            'protocol': "vaba"
+            'protocol': "aleabft"
         }
     }
     try:

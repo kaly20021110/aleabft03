@@ -381,6 +381,11 @@ func (c *Core) abvanceNextABAEpoch(epoch int64) error {
 }
 
 func (c *Core) Run() {
+	//恶意情况的实验
+	if c.Name < core.NodeID(c.Parameters.Faults) {
+		logger.Debug.Printf("Node %d is faulty\n", c.Name)
+		return
+	}
 
 	//创世纪块的创建 c.Epoch为0
 	block := c.generateBlock(c.Epoch)
