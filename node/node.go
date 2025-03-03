@@ -4,6 +4,7 @@ import (
 	"bft/mvba/config"
 	"bft/mvba/core"
 	aleabft "bft/mvba/core/aleabft/consensus"
+	dumbong "bft/mvba/core/dumbong/consensus"
 	"bft/mvba/crypto"
 	"bft/mvba/logger"
 	"bft/mvba/pool"
@@ -63,7 +64,8 @@ func NewNode(
 	switch coreParameters.Protocol {
 	case core.ALEABFT:
 		err = aleabft.Consensus(core.NodeID(nodeID), commitee, coreParameters, txpool, _store, sigService, commitChannel)
-
+	case core.DumboNG:
+		err = dumbong.Consensus(core.NodeID(nodeID), commitee, coreParameters, txpool, _store, sigService, commitChannel)
 	}
 
 	if err != nil {

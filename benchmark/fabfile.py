@@ -13,11 +13,11 @@ def local(ctx):
     ''' Run benchmarks on localhost '''
     bench_params = {
         'nodes': 4,
-        'duration': 10,
+        'duration': 20,
         'rate': 5_000,                  # tx send rate
         'batch_size': 500,              # the max number of tx that can be hold 
         'log_level': 0b1111,            # 0x1 infolevel 0x2 debuglevel 0x4 warnlevel 0x8 errorlevel
-        'protocol': "aleabft"
+        'protocol': "dumbong"
     }
     node_params = {
         "pool": {
@@ -33,7 +33,7 @@ def local(ctx):
             "ddos": False,              # DDOS attack
             "faults": 0,                # the number of byzantine node
             "retry_delay": 5_000,       # request block period
-            'protocol': "aleabft"
+            'protocol': "dumbong"
         }
     }
     try:
@@ -108,11 +108,11 @@ def info(ctx):
 def remote(ctx):
     ''' Run benchmarks on AWS '''
     bench_params = {
-        'nodes': [7],
+        'nodes': [4],
         'node_instance': 1,               # the number of running instance for a node  (max = 4)
         'duration': 40,
-        'rate': 3_000,                    # tx send rate
-        'batch_size': [ 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536],              # the max number of tx that can be hold 
+        'rate': [5_000],                    # tx send rate
+        'batch_size': [500],              # the max number of tx that can be hold 
         'log_level': 0b0001,              # 0x1 infolevel 0x2 debuglevel 0x4 warnlevel 0x8 errorlevel
         'protocol': "aleabft",
         'runs': 1
@@ -129,7 +129,7 @@ def remote(ctx):
             "network_delay": 2_000,     # network delay
             "min_block_delay": 0,       # send block delay
             "ddos": False,              # DDOS attack
-            "faults": 2,                # the number of byzantine node
+            "faults": 0,                # the number of byzantine node
             "retry_delay": 5_000,        # request block period
             'protocol': "aleabft"
         }

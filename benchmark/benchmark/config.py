@@ -95,21 +95,13 @@ class NodeParameters:
         self.faults = int(json['consensus']['faults'])
         self.tx_size = int(json['pool']['tx_size'])
 
-        # MVBA = iota
-        # SMVBA
-        # VABA
-        # Mercury
+        # dumbong
+        # aleabft
         protocol = json['consensus']['protocol']
-        if protocol == "mvba":
+        if protocol == "dumbong":
             json['consensus']['protocol'] = 0
-        elif protocol == "smvba":
-            json['consensus']['protocol'] = 1
-        elif protocol == "vaba":
-            json['consensus']['protocol'] = 2
-        elif protocol == "Mercury":
-            json['consensus']['protocol'] = 3
         elif protocol == "aleabft":
-            json['consensus']['protocol'] = 4
+            json['consensus']['protocol'] = 1
         else:
             raise ConfigError(f'invaild protocol type: {protocol}')
         
@@ -136,10 +128,13 @@ class BenchParameters:
 
             rate = json['rate']
             rate = rate if isinstance(rate,list) else [rate]
+            if not rate:
+                raise ConfigError('Missing rate')
+
             self.nodes = [int(x) for x in nodes]
             self.log_level = int(json['log_level'])
             self.rate = [int(x) for x in rate]
-            self.batch_szie = [int(x) for x in batch_szie]
+            self.batch_size = [int(x) for x in batch_szie]
             self.duration = int(json['duration'])
             self.runs = int(json['runs']) if 'runs' in json else 1
             self.node_instance = int(json['node_instance']) if 'node_instance' in json else 1

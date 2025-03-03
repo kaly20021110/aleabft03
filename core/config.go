@@ -3,12 +3,8 @@ package core
 import "bft/mvba/crypto"
 
 const (
-	MVBA = iota
-	SMVBA
-	VABA
-	MERCURY
+	DumboNG = iota
 	ALEABFT
-	BoltBFT
 )
 
 type Parameters struct {
@@ -28,7 +24,7 @@ var DefaultParameters = Parameters{
 	DDos:          false,
 	Faults:        0,
 	RetryDelay:    5_000,
-	Protocol:      SMVBA,
+	Protocol:      DumboNG,
 }
 
 type NodeID int
@@ -88,12 +84,6 @@ func (c Committee) HightThreshold() int {
 func (c Committee) LowThreshold() int {
 	n := len(c.Authorities)
 	return (n-1)/3 + 1
-}
-
-//MaxThreshold
-func (c Committee) maxThreshold() int {
-	n := len(c.Authorities)
-	return n
 }
 
 const (
