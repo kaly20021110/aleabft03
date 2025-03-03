@@ -116,6 +116,7 @@ class Bench:
 
         cmd = [
             'sudo apt-get update',
+            'sudo dpkg --configure -a',
             'sudo apt-get -y upgrade',
             'sudo apt-get -y autoremove',
 
@@ -290,7 +291,7 @@ class Bench:
 
         Print.info(f'Running {bench_parameters.protocol}')
         Print.info(f'{node_parameters.faults} byzantine nodes')
-        Print.info(f'tx_size {node_parameters.tx_size} byte, input rate {bench_parameters.rate} tx/s')
+        Print.info(f'tx_size {node_parameters.tx_size} byte, batch size  {bench_parameters.batch_size[0]} tx/s')
         Print.info(f'DDOS attack {node_parameters.ddos}')
         
         #Step 2: Run benchmarks.
@@ -304,11 +305,11 @@ class Bench:
                 e = FabricError(e) if isinstance(e, GroupException) else e
                 Print.error(BenchError('Failed to configure nodes', e))
 
-            for batch_size in bench_parameters.batch_szie:
-                Print.heading(f'\nRunning {n}/{bench_parameters.node_instance} nodes (batch size: {batch_size:,})')
+            for rate in bench_parameters.rate:
+                Print.heading(f'\nRunning {n}/{bench_parameters.node_instance} nodes (rate: {rate:})')
                 hosts = selected_hosts[:n]
-
-                node_parameters.json['pool']['rate'] = bench_parameters.rate
+                batch_size = bench_parameters.batch_size[0]
+                node_parameters.json['pool']['rate'] = rate
                 node_parameters.json['pool']['batch_size'] = batch_size
                 self.ts = datetime.now().strftime("%Y-%m-%dv%H-%M-%S")
                 
@@ -332,7 +333,7 @@ class Bench:
                         )
                         self._logs(hosts, node_parameters.faults , protocol, ddos,bench_parameters,self.ts).print(
                             PathMaker.result_file(
-                                n, bench_parameters.rate, node_parameters.tx_size,batch_size , node_parameters.faults,self.ts
+                                n, rate, node_parameters.tx_size,batch_size , node_parameters.faults,self.ts
                         ))
                     except (subprocess.SubprocessError, GroupException, ParseError) as e:
                         self.kill(hosts=hosts)

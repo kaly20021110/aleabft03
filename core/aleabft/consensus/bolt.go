@@ -61,7 +61,7 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 				instance.c.commitments[p.Author] = make(map[int64]*Block)
 			}
 			instance.c.commitments[p.Author][p.Epoch] = p.B
-			logger.Debug.Printf("%d new vote for epoch %d node %d batch_id %d \n",instance.c.Name,p.Epoch, p.Author,instance.c.commitments[p.Author][p.Epoch].Batch.ID)
+			logger.Debug.Printf("%d new vote for epoch %d node %d batch_id %d \n", instance.c.Name, p.Epoch, p.Author, instance.c.commitments[p.Author][p.Epoch].Batch.ID)
 			ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
 			if instance.c.Name == instance.Proposer {
 				instance.c.Transimtor.RecvChannel() <- ready
@@ -69,13 +69,13 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 				instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
 			}
 		}
-	}else{
-			ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
-			if instance.c.Name == instance.Proposer {
-				instance.c.Transimtor.RecvChannel() <- ready
-			} else {
-				instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
-			}
+	} else {
+		ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
+		if instance.c.Name == instance.Proposer {
+			instance.c.Transimtor.RecvChannel() <- ready
+		} else {
+			instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
+		}
 	}
 	return nil
 }
@@ -84,17 +84,14 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 	if r.Proposer != instance.Proposer {
 		return nil
 	}
-	//如果当前的人不是leader
-	if instance.Proposer!=instance.c.Name{
+	if instance.Proposer != instance.c.Name {
 		return nil
 	}
-	//处理人不是本人
-	if r.Proposer!=instance.c.Name{
+	if r.Proposer != instance.c.Name {
 		return nil
 	}
 	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
-	cnts := len(instance.voteShares[r.Epoch])          //2f+1个vote消息
-	//logger.Error.Printf("receiving vote epoch%d counting %d\n", r.Epoch, cnts)
+	cnts := len(instance.voteShares[r.Epoch])          //2f+1 vote
 	if cnts == instance.c.Committee.HightThreshold() { //生成2f+1的聚合签名
 		//make real proposal
 		data, err := crypto.CombineIntactTSPartial(instance.voteShares[r.Epoch], instance.c.SigService.ShareKey, r.Hash())
@@ -102,13 +99,10 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 			logger.Error.Printf("Combine signature error: %v\n", err)
 			return nil
 		}
-		instance.fullSignature = data //把Bolt的全签名赋值为新生成的聚合签名
-		instance.c.getBoltInstance(r.Epoch,r.Proposer).fullSignature = data
-		//进入下一个阶段
+		instance.fullSignature = data
+		instance.c.getBoltInstance(r.Epoch, r.Proposer).fullSignature = data
 		instance.c.Epoch = instance.Epoch + 1
-		//logger.Error.Printf("entering next epoch and begining to generate blocks epoch%d \n", instance.c.Epoch)
 		block := instance.c.generateBlock(instance.c.Epoch)
-		// 提出新的提案
 		proposal, _ := NewProposal(instance.c.Name, block, instance.c.Epoch, instance.c.SigService)
 		proposal.fullSignature = instance.fullSignature
 		instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
