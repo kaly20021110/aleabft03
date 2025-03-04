@@ -254,8 +254,7 @@ func (r *Vote) Verify(committee core.Committee) bool {
 
 func (r *Vote) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	//hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Author)))
-	hasher.Add(strconv.AppendInt(nil, int64(r.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(r.Proposer), 2))
 	hasher.Add(strconv.AppendInt(nil, r.Height, 2))
 	hasher.Add(r.BlockHash[:])
 	return hasher.Sum256(nil)

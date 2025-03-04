@@ -41,6 +41,7 @@ func (instance *Bolt) ProcessProposal(p *Proposal) error {
 	if vote, err := NewVote(instance.c.Name, p.Author, p.Height, blockHash, instance.c.SigService); err != nil {
 		logger.Error.Printf("create spb vote message error:%v \n", err)
 	} else {
+		logger.Debug.Printf("create vote message author %d height %d", p.Author, p.Height)
 		if instance.c.Name == instance.Proposer {
 			instance.c.Transimtor.RecvChannel() <- vote
 		} else {
@@ -74,10 +75,12 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 	num, proof, _ := instance.c.Aggreator.AddVote(r)
 	if num == BV_HIGH_FLAG {
 		//make real proposal
+		instance.c.Height++
 		block := instance.c.generatorBlock(instance.c.Height, r.BlockHash)
 		if proposal, err := NewProposal(instance.c.Name, block, instance.c.Height, proof, instance.c.SigService); err != nil {
 			logger.Error.Printf("create proposal message error:%v \n", err)
 		} else {
+			logger.Debug.Printf("create proposal message author %d height %d", proposal.Author, proposal.Height)
 			instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
 			instance.c.Transimtor.RecvChannel() <- proposal
 		}

@@ -2,6 +2,7 @@ package pool
 
 import (
 	"bft/mvba/logger"
+	"time"
 )
 
 type txQueue struct {
@@ -12,7 +13,6 @@ type txQueue struct {
 	nums         int
 	maxQueueSize int
 	batchSize    int
-	txSize       int
 	N            int
 	Id           int
 	bcnt         int
@@ -21,7 +21,7 @@ type txQueue struct {
 func newTxQueue(
 	maxQueueSize, batchSize int,
 	batchChannel chan Batch,
-	N, Id, txSize int,
+	N, Id int,
 ) *txQueue {
 	r := &txQueue{
 		queue:        make([]Transaction, maxQueueSize),
@@ -65,10 +65,11 @@ func (q *txQueue) make() {
 	}()
 
 	for i := 0; i < q.batchSize; i++ {
-		// q.rind = (q.rind + 1) % q.maxQueueSize
-		batch.Txs = append(batch.Txs, make(Transaction, q.txSize))
-		// q.nums--
+		q.rind = (q.rind + 1) % q.maxQueueSize
+		batch.Txs = append(batch.Txs, q.queue[q.rind])
+		q.nums--
 	}
+	batch.Txs = nil
 	q.batchChannel <- batch
 }
 
@@ -80,8 +81,10 @@ func (q *txQueue) get() Batch {
 	if len(q.batchChannel) > 0 {
 		return <-q.batchChannel
 	} else {
-		q.make()
-		return <-q.batchChannel
+		return Batch{
+			ID:  -1,
+			Txs: nil,
+		}
 	}
 }
 
@@ -103,14 +106,14 @@ func newTxMaker(txSize, rate int) *txMaker {
 }
 
 func (maker *txMaker) run(txChannel chan<- Transaction) {
-	// ticker := time.NewTicker(time.Millisecond * BURST_DURATION)
-	// nums := maker.rate / PRECISION
-	// for range ticker.C {
-	// 	for i := 0; i < nums; i++ {
-	// 		tx := make(Transaction, maker.txSize)
-	// 		txChannel <- tx
-	// 	}
-	// }
+	ticker := time.NewTicker(time.Millisecond * BURST_DURATION)
+	nums := maker.rate / PRECISION
+	for range ticker.C {
+		for i := 0; i < nums; i++ {
+			tx := make(Transaction, maker.txSize)
+			txChannel <- tx
+		}
+	}
 }
 
 type Pool struct {
@@ -153,7 +156,6 @@ func NewPool(parameters Parameters, N, Id int) *Pool {
 		batchChannel,
 		N,
 		Id,
-		parameters.TxSize,
 	)
 
 	p.maker = newTxMaker(

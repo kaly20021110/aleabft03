@@ -2,6 +2,7 @@ package consensus
 
 import (
 	"bft/mvba/core"
+	"bft/mvba/logger"
 	"sync"
 	"sync/atomic"
 )
@@ -151,6 +152,7 @@ func (aba *ABA) ProcessABAMux(mux *ABAMux) {
 
 	aba.flagMutex.Lock()
 	if _, ok := aba.muxFinFlag[mux.Round]; ok { //double check
+		logger.Debug.Printf("aba mux has problem\n")
 		aba.flagMutex.Unlock()
 		return
 	}

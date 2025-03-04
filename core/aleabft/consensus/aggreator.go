@@ -68,8 +68,8 @@ func (b *VoteAggreator) Append(committee core.Committee, vote *Vote, sigService 
 	if _, ok := b.Authors[vote.Author]; ok {
 		return 0, nil, core.ErrOneMoreMessage(vote.MsgType(), vote.Height, 0, vote.Author)
 	}
-	b.Authors[vote.Author] = struct{}{}
-	if len(b.Authors) == committee.HightThreshold() {
+	b.Shares = append(b.Shares, vote.Signature)
+	if len(b.Shares) == committee.HightThreshold() {
 		data, err := crypto.CombineIntactTSPartial(b.Shares, sigService.ShareKey, vote.Hash())
 		if err != nil {
 			logger.Error.Printf("Combine signature error: %v\n", err)

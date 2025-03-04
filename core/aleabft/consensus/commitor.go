@@ -23,31 +23,9 @@ func NewCommittor(callBack chan<- struct{}) *Committor {
 	return c
 }
 
-func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
-	if epoch < c.Index[leader] {
-		return
-	}
-	if block == nil {
-		return
-	}
-	if c.commitBlocks[epoch] == nil {
-		c.commitBlocks[epoch] = make(map[core.NodeID]*Block)
-	}
-	c.commitBlocks[epoch][leader] = block
-	for {
-		if block, ok := c.commitBlocks[c.Index[leader]][leader]; ok {
-			c.commitCh <- block
-			delete(c.commitBlocks, c.Index[leader])
-			c.Index[leader]++
-		} else {
-			break
-		}
-	}
-}
-
 func (c *Committor) run() {
 	for block := range c.commitCh {
-		if block.Batch.Txs != nil {
+		if block.Batch.ID != -1 {
 			logger.Info.Printf("commit Block epoch %d node %d batch_id %d \n", block.Height, block.Proposer, block.Batch.ID)
 		}
 		c.callBack <- struct{}{}

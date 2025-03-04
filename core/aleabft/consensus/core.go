@@ -119,7 +119,7 @@ func (c *Core) getABAInstance(abaepoch, round int64) *ABA {
 func (c *Core) generatorBlock(height int64, preHash crypto.Digest) *Block {
 	block := NewBlock(c.Name, c.TxPool.GetBatch(), height, preHash)
 	if block.Batch.ID != -1 {
-		logger.Info.Printf("create Block height %d node %d batch_id %d \n", block.Height, block.Proposer, block.Batch.ID)
+		logger.Info.Printf("create Block epoch %d node %d batch_id %d \n", block.Height, block.Proposer, block.Batch.ID)
 	}
 	return block
 }
@@ -179,7 +179,7 @@ func (c *Core) handleVote(r *Vote) error {
 
 // 处理prepare阶段的消息  这里可以对队列中的内容进行填充
 func (c *Core) handlePrepare(val *Prepare) error {
-	logger.Debug.Printf("Processing  prepare leader %d proposer %d epoch %d \n", val.Author, val.Proposer, val.ABAEpoch)
+	logger.Debug.Printf("Processing  prepare leader %d proposer %d epoch %d height %d\n", val.Author, val.Proposer, val.ABAEpoch, val.Height)
 
 	if c.abamessageFilter(val.ABAEpoch) {
 		return nil
@@ -209,17 +209,16 @@ func (c *Core) handlePrepare(val *Prepare) error {
 }
 
 func (c *Core) handleABAVal(val *ABAVal) error {
-	logger.Debug.Printf("Processing aba val leader %d epoch %d round %d val %d\n", val.Leader, val.Epoch, val.Round, val.Val)
+	logger.Debug.Printf("Processing aba val Author %d leader %d epoch %d round %d val %d\n", val.Author, val.Leader, val.Epoch, val.Round, val.Val)
 	if c.abamessageFilter(val.Epoch) {
 		return nil
 	}
-
 	go c.getABAInstance(val.Epoch, val.Round).ProcessABAVal(val)
 
 	return nil
 }
 func (c *Core) handleABAMux(mux *ABAMux) error {
-	logger.Debug.Printf("Processing aba mux leader %d epoch %d round %d val %d\n", mux.Leader, mux.Epoch, mux.Round, mux.Val)
+	logger.Debug.Printf("Processing aba mux Author %d leader %d epoch %d round %d val %d\n", mux.Author, mux.Leader, mux.Epoch, mux.Round, mux.Val)
 	if c.abamessageFilter(mux.Epoch) {
 		return nil
 	}
@@ -228,7 +227,7 @@ func (c *Core) handleABAMux(mux *ABAMux) error {
 }
 
 func (c *Core) handleCoinShare(share *CoinShare) error {
-	logger.Debug.Printf("Processing coin share epoch %d round %d ", share.Epoch, share.Round)
+	logger.Debug.Printf("Processing coin share Author %d epoch %d round %d ", share.Author, share.Epoch, share.Round)
 	if c.abamessageFilter(share.Epoch) {
 		return nil
 	}
@@ -268,6 +267,7 @@ func (c *Core) handleOutput(height int64, leader core.NodeID) error {
 			c.Commitor.commitCh <- block
 		}
 	}
+	c.abaHeight[leader] = height
 
 	return c.abvanceNextABAEpoch()
 
@@ -280,8 +280,10 @@ func (c *Core) abvanceNextABAEpoch() error {
 	c.ABAEpoch++
 	id := core.NodeID(c.ABAEpoch % int64(c.Committee.Size()))
 	height := c.CurrentHeight[id]
+	logger.Info.Printf("abvanceNextABAEpoch c.CurrentHeight[id] %d  abaEpoc_id %d\n", c.CurrentHeight[id], id)
 	//快速提交路径
-	for i := c.abaHeight[id]; i < height; i++ {
+	for i := c.abaHeight[id] + 1; i < height; i++ {
+		logger.Info.Printf("fast path commit height %d abaEpoc_id %d\n", i, id)
 		c.blocklock.Lock()
 		blockhash, ok := c.BlockHashMap[id][i]
 		c.blocklock.Unlock()
@@ -290,6 +292,7 @@ func (c *Core) abvanceNextABAEpoch() error {
 			continue
 		}
 		if block, err := c.getBlock(blockhash); err != nil {
+			logger.Info.Printf("getBlock error %d author %d\n", i, id)
 			return err
 		} else {
 			c.Commitor.commitCh <- block
@@ -314,14 +317,6 @@ func (c *Core) Run() {
 		return
 	}
 
-	// //创世纪块的创建 c.Epoch为0
-	// block := c.generateBlock(c.Epoch)
-	// proposal, err := NewProposal(c.Name, block, c.Epoch, c.SigService)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// c.Transimtor.Send(c.Name, core.NONE, proposal)
-	// c.Transimtor.RecvChannel() <- proposal
 	go c.PbBroadcastBlock(crypto.Digest{})
 	go c.StartABA()
 
