@@ -23,15 +23,6 @@ func NewAggreator(committee core.Committee, sigService *crypto.SigService) *Aggr
 	return a
 }
 
-// func (a *Aggreator) addVote(vote *Vote) (bool, []byte, error) {
-// 	items, ok := a.votes[vote.Epoch] //检查这个轮次是否已经生成了vote聚合器
-// 	if !ok {
-// 		items = NewVoteAggreator()
-// 		a.votes[vote.Epoch] = items
-// 	}
-// 	return items.append(a.committee, a.sigService, vote)
-// }
-
 func (a *Aggreator) addCoinShare(coinShare *CoinShare) (bool, int64, error) {
 	items, ok := a.coins[coinShare.Epoch]
 	if !ok {
@@ -46,33 +37,48 @@ func (a *Aggreator) addCoinShare(coinShare *CoinShare) (bool, int64, error) {
 	return item.append(a.committee, a.sigService, coinShare)
 }
 
+func (a *Aggreator) AddVote(vote *Vote) (int8, []byte, error) {
+	item, ok := a.votes[vote.Height]
+	if !ok {
+		item = NewVoteAggreator()
+		a.votes[vote.Height] = item
+	}
+	return item.Append(a.committee, vote, a.sigService)
+}
+
 type VoteAggreator struct { //专门用于收集部分签名然后聚合
-	Used   map[core.NodeID]struct{}
-	Shares []crypto.SignatureShare
+	Authors map[core.NodeID]struct{}
+	Shares  []crypto.SignatureShare
 }
 
 func NewVoteAggreator() *VoteAggreator {
 	return &VoteAggreator{
-		Used:   make(map[core.NodeID]struct{}),
-		Shares: make([]crypto.SignatureShare, 0),
+		Authors: make(map[core.NodeID]struct{}),
+		Shares:  make([]crypto.SignatureShare, 0),
 	}
 }
 
-// func (v *VoteAggreator) append(committee core.Committee, sigService *crypto.SigService, vote *Vote) (bool, []byte, error) {
-// 	if _, ok := v.Used[vote.Author]; ok {
-// 		return false, []byte{}, core.ErrOneMoreMessage(vote.MsgType(), vote.Epoch, 0, vote.Author)
-// 	}
-// 	v.Shares = append(v.Shares, vote.Signature)      //把部分签名加入到部分签名集合中
-// 	if len(v.Shares) == committee.HightThreshold() { //得到完整的fullsignature 她的本质是byte[]
-// 		data, err := crypto.CombineIntactTSPartial(v.Shares, sigService.ShareKey, vote.Hash())
-// 		if err != nil {
-// 			logger.Error.Printf("Combine signature error: %v\n", err)
-// 			return false, []byte{}, err
-// 		}
-// 		return true, data, nil
-// 	}
-// 	return false, []byte{}, nil
-// }
+const (
+	BV_LOW_FLAG int8 = iota
+	BV_HIGH_FLAG
+	BV_NONE_FLAG
+)
+
+func (b *VoteAggreator) Append(committee core.Committee, vote *Vote, sigService *crypto.SigService) (int8, []byte, error) {
+	if _, ok := b.Authors[vote.Author]; ok {
+		return 0, nil, core.ErrOneMoreMessage(vote.MsgType(), vote.Height, 0, vote.Author)
+	}
+	b.Authors[vote.Author] = struct{}{}
+	if len(b.Authors) == committee.HightThreshold() {
+		data, err := crypto.CombineIntactTSPartial(b.Shares, sigService.ShareKey, vote.Hash())
+		if err != nil {
+			logger.Error.Printf("Combine signature error: %v\n", err)
+			return BV_HIGH_FLAG, nil, err
+		}
+		return BV_HIGH_FLAG, data, nil
+	}
+	return BV_NONE_FLAG, nil, nil
+}
 
 type CoinAggreator struct {
 	Used   map[core.NodeID]struct{}

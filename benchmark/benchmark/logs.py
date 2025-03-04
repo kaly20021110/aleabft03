@@ -121,6 +121,7 @@ class LogParser:
         tx_size = self.configs['pool']['tx_size']
         batch_size = self.configs['pool']['batch_size']
         rate = self.configs['pool']['rate']
+        comitcnt = len(self.commits)
         return (
             '\n'
             '-----------------------------------------\n'
@@ -142,6 +143,8 @@ class LogParser:
             '\n'
             f' End-to-end TPS: {round(end_to_end_tps):,} tx/s\n'
             f' End-to-end latency: {round(end_to_end_latency):,} ms\n'
+            
+            f' comitcnt: {round(comitcnt):,} ms\n'
             '-----------------------------------------\n'
         )
 

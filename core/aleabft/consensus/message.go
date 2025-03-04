@@ -11,25 +11,22 @@ import (
 	"strconv"
 )
 
-const (
-	FLAG_YES uint8 = 0
-	FLAG_NO  uint8 = 1
-)
-
 type Validator interface {
 	Verify(core.Committee) bool
 }
 type Block struct {
 	Proposer core.NodeID
 	Batch    pool.Batch
-	Epoch    int64
+	Height   int64
+	PreHash  crypto.Digest
 }
 
-func NewBlock(proposer core.NodeID, Batch pool.Batch, Epoch int64) *Block {
+func NewBlock(proposer core.NodeID, Batch pool.Batch, Height int64, PreHash crypto.Digest) *Block {
 	return &Block{
 		Proposer: proposer,
 		Batch:    Batch,
-		Epoch:    Epoch,
+		Height:   Height,
+		PreHash:  PreHash,
 	}
 }
 func (b *Block) Encode() ([]byte, error) {
@@ -50,25 +47,149 @@ func (b *Block) Decode(data []byte) error {
 func (b *Block) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
 	hasher.Add(strconv.AppendInt(nil, int64(b.Proposer), 2))
-	hasher.Add(strconv.AppendInt(nil, b.Epoch, 2))
+	hasher.Add(strconv.AppendInt(nil, b.Height, 2))
 	hasher.Add(strconv.AppendInt(nil, int64(b.Batch.ID), 2))
 	return hasher.Sum256(nil)
 }
+
+// type BlockMessage struct {
+// 	Author    core.NodeID
+// 	B         *Block
+// 	Height    int64
+// 	Signature crypto.Signature
+// }
+
+// func NewBlockMessage(Author core.NodeID, B *Block, Height int64, sigService *crypto.SigService) (*BlockMessage, error) {
+// 	blockMessage := &BlockMessage{
+// 		Author: Author,
+// 		B:      B,
+// 		Height: Height,
+// 	}
+// 	sig, err := sigService.RequestSignature(blockMessage.Hash())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	blockMessage.Signature = sig
+// 	return blockMessage, nil
+// }
+
+// func (bm *BlockMessage) Verify(committee core.Committee) bool {
+// 	pub := committee.Name(bm.Author)
+// 	return bm.Signature.Verify(pub, bm.Hash())
+// }
+
+// func (bm *BlockMessage) Hash() crypto.Digest {
+// 	hasher := crypto.NewHasher()
+// 	hasher.Add(strconv.AppendInt(nil, int64(bm.Author), 2))
+// 	hasher.Add(strconv.AppendInt(nil, bm.Height, 2))
+// 	if bm.B != nil {
+// 		d := bm.B.Hash()
+// 		hasher.Add(d[:])
+// 	}
+// 	return hasher.Sum256(nil)
+// }
+
+// func (*BlockMessage) MsgType() int {
+// 	return BlockMessageType
+// }
+
+// type VoteforBlock struct {
+// 	Author    core.NodeID
+// 	BlockHash crypto.Digest
+// 	Height    int64
+// 	Signature crypto.Signature
+// }
+
+// func NewVoteforBlock(Author core.NodeID, BlockHash crypto.Digest, Height int64, sigService *crypto.SigService) (*VoteforBlock, error) {
+// 	vote := &VoteforBlock{
+// 		Author:    Author,
+// 		BlockHash: BlockHash,
+// 		Height:    Height,
+// 	}
+// 	sig, err := sigService.RequestSignature(vote.Hash())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	vote.Signature = sig
+// 	return vote, nil
+// }
+
+// func (v *VoteforBlock) Verify(committee core.Committee) bool {
+// 	pub := committee.Name(v.Author)
+// 	return v.Signature.Verify(pub, v.Hash())
+// }
+
+// func (v *VoteforBlock) Hash() crypto.Digest {
+// 	hasher := crypto.NewHasher()
+// 	hasher.Add(strconv.AppendInt(nil, int64(v.Author), 2))
+// 	hasher.Add(strconv.AppendInt(nil, v.Height, 2))
+// 	hasher.Add(v.BlockHash[:])
+// 	return hasher.Sum256(nil)
+// }
+
+// func (*VoteforBlock) MsgType() int {
+// 	return VoteforBlockType
+// }
+
+// type CertForBlockData struct {
+// 	Height int64
+// 	Hash   crypto.Digest
+// }
+
+// type BoltBlock struct {
+// 	Proposer     core.NodeID
+// 	BoltProposal CertForBlockData
+// 	Epoch        int64
+// }
+
+// func NewBoltBlock(proposer core.NodeID, BoltProposal CertForBlockData, Epoch int64) *BoltBlock {
+// 	return &BoltBlock{
+// 		Proposer:     proposer,
+// 		BoltProposal: BoltProposal,
+// 		Epoch:        Epoch,
+// 	}
+// }
+
+// func (b *BoltBlock) Encode() ([]byte, error) {
+// 	buf := bytes.NewBuffer(nil)
+// 	if err := gob.NewEncoder(buf).Encode(b); err != nil {
+// 		return nil, err
+// 	}
+// 	return buf.Bytes(), nil
+// }
+
+// func (b *BoltBlock) Decode(data []byte) error {
+// 	buf := bytes.NewBuffer(data)
+// 	if err := gob.NewDecoder(buf).Decode(b); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+
+// func (b *BoltBlock) Hash() crypto.Digest {
+// 	hasher := crypto.NewHasher()
+// 	hasher.Add(strconv.AppendInt(nil, int64(b.Proposer), 2))
+// 	hasher.Add(strconv.AppendInt(nil, b.Epoch, 2))
+// 	hasher.Add(strconv.AppendInt(nil, int64(b.BoltProposal.Height), 2))
+// 	hasher.Add(b.BoltProposal.Hash[:])
+// 	return hasher.Sum256(nil)
+// }
 
 /**************************** ProposalType ********************************/
 type Proposal struct {
 	Author        core.NodeID
 	B             *Block
-	Epoch         int64
-	fullSignature []byte
+	Height        int64
+	proof         []byte
 	partSignature crypto.Signature
 }
 
-func NewProposal(Author core.NodeID, B *Block, Epoch int64, sigService *crypto.SigService) (*Proposal, error) {
+func NewProposal(Author core.NodeID, B *Block, Epoch int64, proof []byte, sigService *crypto.SigService) (*Proposal, error) {
 	proposal := &Proposal{
 		Author: Author,
 		B:      B,
-		Epoch:  Epoch,
+		Height: Epoch,
+		proof:  proof,
 	}
 	sig, err := sigService.RequestSignature(proposal.Hash())
 	if err != nil {
@@ -85,10 +206,13 @@ func (p *Proposal) Verify(committee core.Committee) bool {
 
 func (p *Proposal) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(p.Author)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(p.Epoch)))
-	d := p.B.Hash()
-	hasher.Add(d[:])
+	hasher.Add(strconv.AppendInt(nil, int64(p.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, p.Height, 2))
+	hasher.Add(p.proof)
+	if p.B != nil {
+		d := p.B.Hash()
+		hasher.Add(d[:])
+	}
 	return hasher.Sum256(nil)
 }
 
@@ -102,17 +226,17 @@ func (p *Proposal) MsgType() int {
 type Vote struct {
 	Author    core.NodeID
 	Proposer  core.NodeID
-	Epoch     int64
-	B         *Block                //对应的block
+	Height    int64
+	BlockHash crypto.Digest         //对应的block
 	Signature crypto.SignatureShare //本轮的部分投票
 }
 
-func NewVote(Author, Proposer core.NodeID, Epoch int64, B *Block, sigService *crypto.SigService) (*Vote, error) {
+func NewVote(Author, Proposer core.NodeID, Epoch int64, BlockHash crypto.Digest, sigService *crypto.SigService) (*Vote, error) {
 	ready := &Vote{
-		Author:   Author,
-		Proposer: Proposer,
-		Epoch:    Epoch,
-		B:        B,
+		Author:    Author,
+		Proposer:  Proposer,
+		Height:    Epoch,
+		BlockHash: BlockHash,
 	}
 	sig, err := sigService.RequestTsSugnature(ready.Hash())
 	if err != nil {
@@ -122,7 +246,7 @@ func NewVote(Author, Proposer core.NodeID, Epoch int64, B *Block, sigService *cr
 	return ready, nil
 }
 
-func (r *Vote) Verify(committee core.Committee) bool { //验证部分签名的事情我还没有弄懂
+func (r *Vote) Verify(committee core.Committee) bool {
 	//pub := committee.Name(r.Author)
 	return r.Signature.Verify(r.Hash())
 	//return r.Signature.Verify(pub, r.Hash())
@@ -131,10 +255,9 @@ func (r *Vote) Verify(committee core.Committee) bool { //验证部分签名的�
 func (r *Vote) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
 	//hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Author)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Proposer)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Epoch)))
-	d := r.B.Hash()
-	hasher.Add(d[:])
+	hasher.Add(strconv.AppendInt(nil, int64(r.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, r.Height, 2))
+	hasher.Add(r.BlockHash[:])
 	return hasher.Sum256(nil)
 }
 
@@ -144,42 +267,45 @@ func (r *Vote) MsgType() int {
 
 /**************************** PrepareType ********************************/
 
-// 用于交换队列中的最新方块值
+// 用于交换队列中的最新方块值 但是还没加高度区块的证明
 type Prepare struct {
 	Author    core.NodeID
 	Proposer  core.NodeID
-	Epoch     int64
-	Height    int64                 //用于传递高度
-	Signature crypto.SignatureShare //本轮的部分投票
+	ABAEpoch  int64
+	Height    int64            //用于传递高度
+	Block     *Block           //提前把block给别人
+	proof     []byte           //证明
+	Signature crypto.Signature //本轮的部分投票
 }
 
-func NewPrepare(Author, Proposer core.NodeID, Epoch int64, Height int64, sigService *crypto.SigService) (*Prepare, error) {
-	ready := &Prepare{
+func NewPrepare(Author, Proposer core.NodeID, ABAEpoch int64, Height int64, Block *Block, proof []byte, sigService *crypto.SigService) (*Prepare, error) {
+	prepare := &Prepare{
 		Author:   Author,
 		Proposer: Proposer,
-		Epoch:    Epoch,
+		ABAEpoch: ABAEpoch,
 		Height:   Height,
+		Block:    Block,
+		proof:    proof,
 	}
-	sig, err := sigService.RequestTsSugnature(ready.Hash())
+	sig, err := sigService.RequestSignature(prepare.Hash())
 	if err != nil {
 		return nil, err
 	}
-	ready.Signature = sig
-	return ready, nil
+	prepare.Signature = sig
+	return prepare, nil
 }
 
 func (r *Prepare) Verify(committee core.Committee) bool { //验证部分签名的事情我还没有弄懂
-	//pub := committee.Name(r.Author)
-	return r.Signature.Verify(r.Hash())
-	//return r.Signature.Verify(pub, r.Hash())
+	pub := committee.Name(r.Author)
+	//return r.Signature.Verify(r.Hash())
+	return r.Signature.Verify(pub, r.Hash())
 }
 
-func (r *Prepare) Hash() crypto.Digest {
+func (f *Prepare) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Author)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Proposer)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Epoch)))
-	hasher.Add(binary.LittleEndian.AppendUint64(nil, uint64(r.Height)))
+	hasher.Add(f.proof)
+	hasher.Add(strconv.AppendInt(nil, int64(f.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, f.ABAEpoch, 2))
 	return hasher.Sum256(nil)
 }
 
@@ -220,11 +346,11 @@ func (v *ABAVal) Verify(committee core.Committee) bool {
 
 func (v *ABAVal) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Author)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Leader)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Epoch)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Round)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Val)))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Leader), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Epoch), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Round), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Val), 2))
 	return hasher.Sum256(nil)
 }
 
@@ -267,11 +393,11 @@ func (v *ABAMux) Verify(committee core.Committee) bool {
 
 func (v *ABAMux) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Author)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Leader)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Epoch)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Round)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(v.Val)))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Leader), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Epoch), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Round), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(v.Val), 2))
 	return hasher.Sum256(nil)
 }
 
@@ -312,8 +438,8 @@ func (c *CoinShare) Verify(committee core.Committee) bool {
 
 func (c *CoinShare) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(c.Leader)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(c.Epoch)))
+	hasher.Add(strconv.AppendInt(nil, int64(c.Leader), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(c.Epoch), 2))
 	return hasher.Sum256(nil)
 }
 
@@ -356,11 +482,11 @@ func (h *ABAHalt) Verify(committee core.Committee) bool {
 
 func (h *ABAHalt) Hash() crypto.Digest {
 	hasher := crypto.NewHasher()
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Author)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Leader)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Epoch)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Round)))
-	hasher.Add(binary.BigEndian.AppendUint64(nil, uint64(h.Val)))
+	hasher.Add(strconv.AppendInt(nil, int64(h.Author), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(h.Leader), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(h.Epoch), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(h.Round), 2))
+	hasher.Add(strconv.AppendInt(nil, int64(h.Val), 2))
 	return hasher.Sum256(nil)
 }
 
@@ -458,6 +584,8 @@ const (
 	ABAHaltType
 	AskValType
 	AnswerValType
+	//BlockMessageType
+	//VoteforBlockType
 )
 
 var DefaultMessageTypeMap = map[int]reflect.Type{
@@ -470,5 +598,6 @@ var DefaultMessageTypeMap = map[int]reflect.Type{
 	ABAHaltType:   reflect.TypeOf(ABAHalt{}),
 	AskValType:    reflect.TypeOf(AskVal{}),
 	AnswerValType: reflect.TypeOf(AnswerVal{}),
+	//BlockMessageType: reflect.TypeOf(BlockMessage{}),
+	//VoteforBlockType: reflect.TypeOf(VoteforBlock{}),
 }
-

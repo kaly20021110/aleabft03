@@ -31,7 +31,7 @@ func Consensus(
 		"Consensus DDos: %v, Faults: %v \n",
 		parameters.DDos, parameters.Faults,
 	)
-	logger.Info.Println("Protocol: SMVBA")
+	logger.Info.Println("Protocol: Dumno_NG")
 	if id < core.NodeID(parameters.Faults) {
 		logger.Info.Println("Byzantine Node")
 	} else {

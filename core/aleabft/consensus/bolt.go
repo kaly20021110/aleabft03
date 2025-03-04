@@ -2,111 +2,93 @@ package consensus
 
 import (
 	"bft/mvba/core"
-	"bft/mvba/crypto"
 	"bft/mvba/logger"
 	"bytes"
 	"sync"
+	"sync/atomic"
 )
 
-type BoltBack struct {
-	Epoch      int64
-	Author     core.NodeID
-	Tag        uint8
-	Commitment []bool
-}
-
 type Bolt struct {
-	c              *Core
-	Proposer       core.NodeID //相当于这个是提案的leader
-	Epoch          int64
-	BMutex         sync.Mutex
-	BlockHash      *crypto.Digest
-	fullSignature  []byte      //本轮的full签名 也就是本轮的commitment
-	cachedVote     []*Vote     //收集的vote消息
-	cachedProposal []*Proposal //存储Proposal
-	voteShares     map[int64][]crypto.SignatureShare
-	boltCallBack   chan *BoltBack
+	c                *Core
+	Proposer         core.NodeID
+	Epoch            int64
+	BlockHash        atomic.Value
+	uvm              sync.Mutex
+	unHandleVote     []*Vote     //收集的vote消息
+	unHandleProposal []*Proposal //存储Proposal
+	LockFlag         atomic.Bool
 }
 
-func NewBolt(c *Core, Proposer core.NodeID, Epoch int64, boltCallBack chan *BoltBack) *Bolt {
+func NewBolt(c *Core, Proposer core.NodeID, Epoch int64) *Bolt {
 	bolt := &Bolt{
-		c:              c,
-		Proposer:       Proposer,
-		Epoch:          Epoch,
-		BMutex:         sync.Mutex{},
-		BlockHash:      nil,
-		cachedVote:     make([]*Vote, 0),
-		cachedProposal: make([]*Proposal, 0),
-		voteShares:     make(map[int64][]crypto.SignatureShare),
-		boltCallBack:   boltCallBack,
+		c:                c,
+		Proposer:         Proposer,
+		Epoch:            Epoch,
+		uvm:              sync.Mutex{},
+		unHandleVote:     make([]*Vote, 0),
+		unHandleProposal: make([]*Proposal, 0),
 	}
 	return bolt
 }
 
-// 处理提案消息
 func (instance *Bolt) ProcessProposal(p *Proposal) error {
 	//already recieve
-	if p.Author != instance.Proposer {
+	if instance.BlockHash.Load() != nil || instance.Proposer != p.B.Proposer {
 		return nil
 	}
-	instance.BMutex.Lock()
-	d := p.B.Hash()
-	instance.BlockHash = &d
-	instance.c.storeBlock(p.B)
-	instance.BMutex.Unlock()
-
-	if p.Epoch >= 1 {
-		if bytes.Equal(p.fullSignature, instance.c.getBoltInstance(p.Epoch-1, p.Author).fullSignature) {
-			if instance.c.commitments[p.Author] == nil {
-				instance.c.commitments[p.Author] = make(map[int64]*Block)
-			}
-			instance.c.commitments[p.Author][p.Epoch] = p.B
-			logger.Debug.Printf("%d new vote for epoch %d node %d batch_id %d \n", instance.c.Name, p.Epoch, p.Author, instance.c.commitments[p.Author][p.Epoch].Batch.ID)
-			ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
-			if instance.c.Name == instance.Proposer {
-				instance.c.Transimtor.RecvChannel() <- ready
-			} else {
-				instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
-			}
-		}
+	blockHash := p.B.Hash()
+	instance.BlockHash.Store(blockHash)
+	if vote, err := NewVote(instance.c.Name, p.Author, p.Height, blockHash, instance.c.SigService); err != nil {
+		logger.Error.Printf("create spb vote message error:%v \n", err)
 	} else {
-		ready, _ := NewVote(instance.c.Name, instance.Proposer, p.Epoch, p.B, instance.c.SigService)
 		if instance.c.Name == instance.Proposer {
-			instance.c.Transimtor.RecvChannel() <- ready
+			instance.c.Transimtor.RecvChannel() <- vote
 		} else {
-			instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, ready)
+			instance.c.Transimtor.Send(instance.c.Name, instance.Proposer, vote)
+		}
+	}
+
+	if bytes.Equal(p.proof, instance.c.commitments[p.Author][p.Height-1]) {
+	}
+
+	instance.uvm.Lock()
+	for _, proposal := range instance.unHandleProposal {
+		go instance.ProcessProposal(proposal)
+	}
+	for _, vote := range instance.unHandleVote {
+		go instance.ProcessVote(vote)
+	}
+	instance.unHandleProposal = nil
+	instance.unHandleVote = nil
+	instance.uvm.Unlock()
+	return nil
+}
+
+func (instance *Bolt) ProcessVote(r *Vote) error {
+	if instance.BlockHash.Load() == nil {
+		instance.uvm.Lock()
+		instance.unHandleVote = append(instance.unHandleVote, r)
+		instance.uvm.Unlock()
+		return nil
+	}
+	num, proof, _ := instance.c.Aggreator.AddVote(r)
+	if num == BV_HIGH_FLAG {
+		//make real proposal
+		block := instance.c.generatorBlock(instance.c.Height, r.BlockHash)
+		if proposal, err := NewProposal(instance.c.Name, block, instance.c.Height, proof, instance.c.SigService); err != nil {
+			logger.Error.Printf("create proposal message error:%v \n", err)
+		} else {
+			instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
+			instance.c.Transimtor.RecvChannel() <- proposal
 		}
 	}
 	return nil
 }
 
-func (instance *Bolt) ProcessVote(r *Vote) error {
-	if r.Proposer != instance.Proposer {
-		return nil
-	}
-	if instance.Proposer != instance.c.Name {
-		return nil
-	}
-	if r.Proposer != instance.c.Name {
-		return nil
-	}
-	instance.voteShares[r.Epoch] = append(instance.voteShares[r.Epoch], r.Signature)
-	cnts := len(instance.voteShares[r.Epoch])          //2f+1 vote
-	if cnts == instance.c.Committee.HightThreshold() { //生成2f+1的聚合签名
-		//make real proposal
-		data, err := crypto.CombineIntactTSPartial(instance.voteShares[r.Epoch], instance.c.SigService.ShareKey, r.Hash())
-		if err != nil {
-			logger.Error.Printf("Combine signature error: %v\n", err)
-			return nil
-		}
-		instance.fullSignature = data
-		instance.c.getBoltInstance(r.Epoch, r.Proposer).fullSignature = data
-		instance.c.Epoch = instance.Epoch + 1
-		block := instance.c.generateBlock(instance.c.Epoch)
-		proposal, _ := NewProposal(instance.c.Name, block, instance.c.Epoch, instance.c.SigService)
-		proposal.fullSignature = instance.fullSignature
-		instance.c.Transimtor.Send(instance.c.Name, core.NONE, proposal)
-		instance.c.Transimtor.RecvChannel() <- proposal
-	}
-	return nil
+func (s *Bolt) IsLock() bool {
+	return s.LockFlag.Load()
+}
+
+func (s *Bolt) GetBlockHash() any {
+	return s.BlockHash.Load()
 }

@@ -48,7 +48,7 @@ func (c *Committor) Commit(epoch int64, leader core.NodeID, block *Block) {
 func (c *Committor) run() {
 	for block := range c.commitCh {
 		if block.Batch.Txs != nil {
-			logger.Info.Printf("commit Block epoch %d node %d batch_id %d \n", block.Epoch, block.Proposer, block.Batch.ID)
+			logger.Info.Printf("commit Block epoch %d node %d batch_id %d \n", block.Height, block.Proposer, block.Batch.ID)
 		}
 		c.callBack <- struct{}{}
 	}
