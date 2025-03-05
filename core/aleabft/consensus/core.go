@@ -28,6 +28,8 @@ type Core struct {
 	boltInstances map[int64]map[core.NodeID]*Bolt         //Bolt实例的二维数组 ID epoch
 	prepareSet    map[int64][]*Prepare                    //存储每个Epoch的Prepare消息
 	commitments   map[core.NodeID]map[int64][]byte        //N个优先队列存储n个经过Blot的可以准备提交（已经收到了commitment）的实例（这个实例具体用什么表示还没想好）
+	abaInvokeFlag map[int64]map[int64]map[int64]struct{}  //aba invoke flag
+	alreadyCommit map[int]uint8
 	abaCallBack   chan *ABABack
 	blocklock     sync.Mutex
 }
@@ -61,6 +63,8 @@ func NewCore(
 		boltInstances: make(map[int64]map[core.NodeID]*Bolt),
 		prepareSet:    make(map[int64][]*Prepare),
 		commitments:   make(map[core.NodeID]map[int64][]byte),
+		abaInvokeFlag: make(map[int64]map[int64]map[int64]struct{}),
+		alreadyCommit: make(map[int]uint8),
 		abaCallBack:   make(chan *ABABack, 1000),
 	}
 	return core
@@ -143,7 +147,7 @@ func (c *Core) PbBroadcastBlock(preHash crypto.Digest) error {
 
 func (c *Core) StartABA() error {
 	logger.Debug.Printf("StartABA and create prepare msg proposer %d  leader %d height %d\n", c.Name, core.NodeID(c.ABAEpoch%int64(c.Committee.Size())), 0)
-	prepare, _ := NewPrepare(c.Name, core.NodeID(c.ABAEpoch%int64(c.Committee.Size())), c.ABAEpoch, 0, nil, nil, c.SigService) //传递的是高度为h-1的块，因为最高块可能只有自己收到了
+	prepare, _ := NewPrepare(c.Name, core.NodeID(c.ABAEpoch%int64(c.Committee.Size()-c.Parameters.Faults)), c.ABAEpoch, 0, nil, nil, c.SigService) //传递的是高度为h-1的块，因为最高块可能只有自己收到了
 	c.Transimtor.Send(c.Name, core.NONE, prepare)
 	c.Transimtor.RecvChannel() <- prepare
 	return nil
@@ -163,8 +167,10 @@ func (c *Core) handleProposal(p *Proposal) error {
 	if p.Height < c.CurrentHeight[p.Author] {
 		return nil
 	}
+	// if bytes.Equal(p.proof, c.commitments[p.Author][p.Height-1]) {
+	// 	c.CurrentHeight[p.Author] = p.Height - 1 //拥有的最高QC的高度
+	// }
 	c.CurrentHeight[p.Author] = p.Height - 1 //拥有的最高QC的高度
-
 	if _, ok := c.BlockHashMap[p.Author]; !ok {
 		c.BlockHashMap[p.Author] = make(map[int64]crypto.Digest)
 	}
@@ -177,7 +183,7 @@ func (c *Core) handleProposal(p *Proposal) error {
 	if _, oks := c.commitments[p.Author]; !oks {
 		c.commitments[p.Author] = make(map[int64][]byte)
 	}
-	c.commitments[p.Author][p.Height-1] = p.proof
+	//c.commitments[p.Author][p.Height-1] = p.proof
 	go c.getBoltInstance(p.Height, p.Author).ProcessProposal(p)
 	return nil
 }
@@ -213,7 +219,7 @@ func (c *Core) handlePrepare(val *Prepare) error {
 			}
 		}
 		//向ABA输入值创建newABAval
-		abaVal, _ := NewABAVal(c.Name, core.NodeID(c.ABAEpoch%int64(c.Committee.Size())), val.ABAEpoch, 0, maxprepare.Height, c.SigService)
+		abaVal, _ := NewABAVal(c.Name, core.NodeID(c.ABAEpoch%int64(c.Committee.Size()-c.Parameters.Faults)), val.ABAEpoch, 0, maxprepare.Height, c.SigService)
 		c.Transimtor.Send(c.Name, core.NONE, abaVal)
 		c.Transimtor.RecvChannel() <- abaVal
 	}
@@ -257,15 +263,64 @@ func (c *Core) handleABAHalt(halt *ABAHalt) error {
 	if c.abamessageFilter(halt.Epoch) {
 		return nil
 	}
-	c.abaHeight[halt.Leader] = halt.Val
+	//c.abaHeight[halt.Leader] = halt.Val
 	go c.getABAInstance(halt.Epoch, halt.Round).ProcessHalt(halt) //收到之后也广播halt消息
 
-	return c.handleOutput(halt.Val, halt.Leader)
+	//return c.handleOutput(halt.Val, halt.Leader)
+	return nil
+}
+
+func (c *Core) isInvokeABA(epoch, round int64, height int64) bool {
+	flags, ok := c.abaInvokeFlag[epoch]
+	if !ok {
+		return false
+	}
+	flag, ok := flags[round]
+	if !ok {
+		return false
+	}
+	_, ok = flag[height]
+	return ok
+}
+
+func (c *Core) invokeABAVal(leader core.NodeID, epoch, round int64, height int64) error {
+	logger.Debug.Printf("Invoke ABA epoch %d ex_round %d  val %d\n", epoch, round, height)
+	if c.isInvokeABA(epoch, round, height) {
+		return nil
+	}
+	flags, ok := c.abaInvokeFlag[epoch]
+	if !ok {
+		flags = make(map[int64]map[int64]struct{})
+		c.abaInvokeFlag[epoch] = flags
+	}
+	items, ok := flags[round]
+	if !ok {
+		items = make(map[int64]struct{})
+		flags[round] = items
+	}
+	items[height] = struct{}{}
+	abaVal, _ := NewABAVal(c.Name, leader, epoch, round, height, c.SigService)
+	c.Transimtor.Send(c.Name, core.NONE, abaVal)
+	c.Transimtor.RecvChannel() <- abaVal
+
+	return nil
+}
+
+func (c *Core) processABABack(back *ABABack) error {
+	if back.Typ == ABA_INVOKE {
+		return c.invokeABAVal(back.Leader, back.Epoch, back.Round, back.Val)
+	} else if back.Typ == ABA_HALT {
+		if back.Epoch >= c.ABAEpoch {
+			c.handleOutput(back.Val, back.Leader)
+		}
+	}
+	return nil
 }
 
 func (c *Core) handleOutput(height int64, leader core.NodeID) error {
 
-	for i := c.abaHeight[leader]; i < height; i++ {
+	for i := c.abaHeight[leader]; i <= height; i++ {
+		logger.Debug.Printf("handleOutput commit height %d author %d\n", i, leader)
 		c.blocklock.Lock()
 		blockhash, ok := c.BlockHashMap[leader][i]
 		c.blocklock.Unlock()
@@ -276,10 +331,17 @@ func (c *Core) handleOutput(height int64, leader core.NodeID) error {
 		if block, err := c.getBlock(blockhash); err != nil {
 			return err
 		} else {
+			// if c.alreadyCommit[block.Batch.ID] == uint8(0) {
+			// 	logger.Warn.Printf(" handleOutput commit blocks %d\n", block.Batch.ID)
+			// 	c.Commitor.commitCh <- block
+			// 	c.alreadyCommit[block.Batch.ID] = uint8(1)
+			// }
+			//c.Commitor.Commit(i, leader, block)
 			c.Commitor.commitCh <- block
 		}
 	}
-	c.abaHeight[leader] = height
+	c.abaHeight[leader] = height + 1
+	logger.Debug.Printf("c.abaHeight[leader] %d leader %d\n", c.abaHeight[leader], leader)
 
 	return c.abvanceNextABAEpoch()
 
@@ -290,12 +352,12 @@ func (c *Core) handleOutput(height int64, leader core.NodeID) error {
 /**************************** acctual run ********************************/
 func (c *Core) abvanceNextABAEpoch() error {
 	c.ABAEpoch++
-	id := core.NodeID(c.ABAEpoch % int64(c.Committee.Size()))
-	height := c.CurrentHeight[id]
-	//logger.Info.Printf("abvanceNextABAEpoch c.CurrentHeight[id] %d  abaEpoc_id %d\n", c.CurrentHeight[id], id)
+	id := core.NodeID(c.ABAEpoch % int64(c.Committee.Size()-c.Parameters.Faults))
+	height := c.CurrentHeight[id] //收到QC的高度
+	logger.Error.Printf("abvanceNextABAEpoch  c.CurrentHeight[id] %d  id %d\n", height, id)
 	//快速提交路径
-	for i := c.abaHeight[id] + 1; i < height; i++ {
-
+	for i := c.abaHeight[id]; i < height; i++ {
+		logger.Debug.Printf("abvanceNextABAEpoch commit height %d author %d\n", i, id)
 		c.blocklock.Lock()
 		blockhash, ok := c.BlockHashMap[id][i]
 		c.blocklock.Unlock()
@@ -308,10 +370,18 @@ func (c *Core) abvanceNextABAEpoch() error {
 			return err
 		} else {
 			//logger.Info.Printf("abvanceNextABAEpoch fast path commit height %d node %d batch_id %d\n", i, id, block.Batch.ID)
+			//c.Commitor.Commit(i, id, block)
 			c.Commitor.commitCh <- block
+			// if c.alreadyCommit[block.Batch.ID] == uint8(0) {
+			// 	logger.Warn.Printf(" abvanceNextABAEpoch commit blocks %d\n", block.Batch.ID)
+			// 	c.Commitor.commitCh <- block
+			// 	c.alreadyCommit[block.Batch.ID] = uint8(1)
+			// }
 		}
 	}
-	c.abaHeight[id] = height - 1
+	if c.abaHeight[id] < height {
+		c.abaHeight[id] = height
+	}
 	qc := c.commitments[id][height]
 	blockhash := c.BlockHashMap[id][height]
 	block, _ := c.getBlock(blockhash)
@@ -324,15 +394,13 @@ func (c *Core) abvanceNextABAEpoch() error {
 }
 
 func (c *Core) Run() {
-	if c.Name < core.NodeID(c.Parameters.Faults) {
+	if c.Name >= core.NodeID(c.Committee.Size()-c.Parameters.Faults) {
 		logger.Debug.Printf("Node %d is faulty\n", c.Name)
 		return
 	}
 
 	go c.PbBroadcastBlock(crypto.Digest{})
 	go c.StartABA()
-
-	//go c.TrytoStartABA() //这个地方不执行，等有PB完成了再开始ABA也不迟
 
 	recvChan := c.Transimtor.RecvChannel()
 	for {
@@ -362,7 +430,8 @@ func (c *Core) Run() {
 					err = c.handleABAHalt(msg.(*ABAHalt))
 				}
 			}
-		default:
+		case abaBack := <-c.abaCallBack:
+			err = c.processABABack(abaBack)
 		}
 		if err != nil {
 			logger.Warn.Println(err)

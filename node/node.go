@@ -5,6 +5,7 @@ import (
 	"bft/mvba/core"
 	aleabft "bft/mvba/core/aleabft/consensus"
 	dumbong "bft/mvba/core/dumbong/consensus"
+	originalea "bft/mvba/core/originalea/consensus"
 	"bft/mvba/crypto"
 	"bft/mvba/logger"
 	"bft/mvba/pool"
@@ -66,6 +67,8 @@ func NewNode(
 		err = aleabft.Consensus(core.NodeID(nodeID), commitee, coreParameters, txpool, _store, sigService, commitChannel)
 	case core.DumboNG:
 		err = dumbong.Consensus(core.NodeID(nodeID), commitee, coreParameters, txpool, _store, sigService, commitChannel)
+	case core.OriginAlea:
+		err = originalea.Consensus(core.NodeID(nodeID), commitee, coreParameters, txpool, _store, sigService, commitChannel)
 	}
 
 	if err != nil {

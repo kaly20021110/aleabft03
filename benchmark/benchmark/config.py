@@ -97,11 +97,14 @@ class NodeParameters:
 
         # dumbong
         # aleabft
+        #originalea
         protocol = json['consensus']['protocol']
         if protocol == "dumbong":
             json['consensus']['protocol'] = 0
         elif protocol == "aleabft":
             json['consensus']['protocol'] = 1
+        elif protocol == "originalea":
+            json['consensus']['protocol'] = 2
         else:
             raise ConfigError(f'invaild protocol type: {protocol}')
         

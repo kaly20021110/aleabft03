@@ -5,6 +5,7 @@ import "bft/mvba/crypto"
 const (
 	DumboNG = iota
 	ALEABFT
+	OriginAlea
 )
 
 type Parameters struct {

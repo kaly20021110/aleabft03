@@ -31,7 +31,7 @@ def local(ctx):
             "network_delay": 2_000,     # network delay
             "min_block_delay": 0,       # send block delay
             "ddos": False,              # DDOS attack
-            "faults": 0,                # the number of byzantine node
+            "faults": 1,                # the number of byzantine node
             "retry_delay": 5_000,       # request block period
             'protocol': "aleabft"
         }

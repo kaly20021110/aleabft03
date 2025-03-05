@@ -88,16 +88,16 @@ func (aba *ABA) ProcessABAVal(val *ABAVal) {
 			aba.valEven[val.Round] = val.Val
 		}
 		aba.valMutex.Unlock()
-		abaVal, _ := NewABAVal(aba.c.Name, val.Leader, aba.Epoch, aba.Round, val.Val, aba.c.SigService)
-		aba.c.Transimtor.Send(aba.c.Name, core.NONE, abaVal)
-		aba.c.Transimtor.RecvChannel() <- abaVal
-		// aba.abaCallBack <- &ABABack{
-		// 	Typ:    ABA_INVOKE,
-		// 	Epoch:  aba.Epoch,
-		// 	Round:  aba.Round,
-		// 	Val:    val.Val,
-		// 	Leader: val.Leader,
-		// }
+		// abaVal, _ := NewABAVal(aba.c.Name, val.Leader, aba.Epoch, aba.Round, val.Val, aba.c.SigService)
+		// aba.c.Transimtor.Send(aba.c.Name, core.NONE, abaVal)
+		// aba.c.Transimtor.RecvChannel() <- abaVal
+		aba.abaCallBack <- &ABABack{
+			Typ:    ABA_INVOKE,
+			Epoch:  aba.Epoch,
+			Round:  aba.Round,
+			Val:    val.Val,
+			Leader: val.Leader,
+		}
 	} else if cnt == int64(aba.c.Committee.HightThreshold()) {
 		aba.flagMutex.Lock()
 		defer aba.flagMutex.Unlock()
@@ -140,13 +140,12 @@ func (aba *ABA) ProcessABAMux(mux *ABAMux) {
 			muxEvencnt = aba.muxOdd[mux.Round]
 		}
 	}
-	aba.muxMutex.Unlock()
 
 	if aba.muxCnt[mux.Round] == nil {
 		aba.muxCnt[mux.Round] = make(map[int64]int64)
 	}
 	aba.muxCnt[mux.Round][mux.Val]++
-
+	aba.muxMutex.Unlock()
 	var Oddvalue, Evenvalue int64
 	var Oddvaluecnt, Evenvaluecnt int64
 	aba.valMutex.Lock()

@@ -13,6 +13,7 @@ type Bolt struct {
 	Proposer         core.NodeID
 	Epoch            int64
 	BlockHash        atomic.Value
+	vm               sync.Mutex
 	uvm              sync.Mutex
 	unHandleVote     []*Vote     //收集的vote消息
 	unHandleProposal []*Proposal //存储Proposal
@@ -24,6 +25,7 @@ func NewBolt(c *Core, Proposer core.NodeID, Epoch int64) *Bolt {
 		c:                c,
 		Proposer:         Proposer,
 		Epoch:            Epoch,
+		vm:               sync.Mutex{},
 		uvm:              sync.Mutex{},
 		unHandleVote:     make([]*Vote, 0),
 		unHandleProposal: make([]*Proposal, 0),
@@ -83,7 +85,9 @@ func (instance *Bolt) ProcessVote(r *Vote) error {
 	if instance.c.Name != r.Proposer {
 		return nil
 	}
+	instance.vm.Lock()
 	num, proof, _ := instance.c.Aggreator.AddVote(r)
+	instance.vm.Unlock()
 	if num == BV_HIGH_FLAG {
 		//make real proposal
 		instance.c.Height++

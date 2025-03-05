@@ -310,6 +310,7 @@ func (c *Core) commitSMVBABlock(block *SMVBABlock) error {
 				if block, err := c.getBlock(blockhash); err != nil {
 					return err
 				} else {
+					logger.Warn.Printf(" handleOutput commit blocks %d\n", block.Batch.ID)
 					c.Commitor.commitCh <- block
 				}
 			}
