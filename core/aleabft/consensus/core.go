@@ -131,6 +131,10 @@ func (c *Core) PbBroadcastBlock(preHash crypto.Digest) error {
 	if proposal, err := NewProposal(c.Name, block, c.Height, nil, c.SigService); err != nil {
 		logger.Error.Printf("create spb proposal message error:%v \n", err)
 	} else {
+		if c.commitments[c.Name] == nil {
+			c.commitments[c.Name] = make(map[int64][]byte)
+		}
+		c.commitments[c.Name][c.Height-1] = nil
 		c.Transimtor.Send(c.Name, core.NONE, proposal)
 		c.Transimtor.RecvChannel() <- proposal
 	}
@@ -156,16 +160,24 @@ func (c *Core) abamessageFilter(epoch int64) bool {
 
 func (c *Core) handleProposal(p *Proposal) error {
 	logger.Debug.Printf("Processing proposal proposer %d epoch %d\n", p.Author, p.Height)
-
+	if p.Height < c.CurrentHeight[p.Author] {
+		return nil
+	}
 	c.CurrentHeight[p.Author] = p.Height - 1 //拥有的最高QC的高度
+
 	if _, ok := c.BlockHashMap[p.Author]; !ok {
 		c.BlockHashMap[p.Author] = make(map[int64]crypto.Digest)
 	}
 	c.BlockHashMap[p.Author][p.Height] = p.B.Hash()
+
 	if err := c.storeBlock(p.B); err != nil {
 		logger.Error.Printf("Store Block error: %v\n", err)
 		return err
 	}
+	if _, oks := c.commitments[p.Author]; !oks {
+		c.commitments[p.Author] = make(map[int64][]byte)
+	}
+	c.commitments[p.Author][p.Height-1] = p.proof
 	go c.getBoltInstance(p.Height, p.Author).ProcessProposal(p)
 	return nil
 }
@@ -280,10 +292,10 @@ func (c *Core) abvanceNextABAEpoch() error {
 	c.ABAEpoch++
 	id := core.NodeID(c.ABAEpoch % int64(c.Committee.Size()))
 	height := c.CurrentHeight[id]
-	logger.Info.Printf("abvanceNextABAEpoch c.CurrentHeight[id] %d  abaEpoc_id %d\n", c.CurrentHeight[id], id)
+	//logger.Info.Printf("abvanceNextABAEpoch c.CurrentHeight[id] %d  abaEpoc_id %d\n", c.CurrentHeight[id], id)
 	//快速提交路径
 	for i := c.abaHeight[id] + 1; i < height; i++ {
-		logger.Info.Printf("fast path commit height %d abaEpoc_id %d\n", i, id)
+
 		c.blocklock.Lock()
 		blockhash, ok := c.BlockHashMap[id][i]
 		c.blocklock.Unlock()
@@ -295,6 +307,7 @@ func (c *Core) abvanceNextABAEpoch() error {
 			logger.Info.Printf("getBlock error %d author %d\n", i, id)
 			return err
 		} else {
+			//logger.Info.Printf("abvanceNextABAEpoch fast path commit height %d node %d batch_id %d\n", i, id, block.Batch.ID)
 			c.Commitor.commitCh <- block
 		}
 	}
@@ -311,7 +324,6 @@ func (c *Core) abvanceNextABAEpoch() error {
 }
 
 func (c *Core) Run() {
-	//恶意情况的实验
 	if c.Name < core.NodeID(c.Parameters.Faults) {
 		logger.Debug.Printf("Node %d is faulty\n", c.Name)
 		return

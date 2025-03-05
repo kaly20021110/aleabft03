@@ -68,6 +68,9 @@ func (aba *ABA) ProcessABAVal(val *ABAVal) {
 	if aba.halt.Load() {
 		return
 	}
+	if aba.Epoch > val.Epoch {
+		return
+	}
 	var cnt int64
 	aba.valMutex.Lock()
 	if aba.valCnt[val.Round] == nil {
@@ -77,6 +80,7 @@ func (aba *ABA) ProcessABAVal(val *ABAVal) {
 	cnt = aba.valCnt[val.Round][val.Val]
 	aba.valMutex.Unlock()
 	if cnt == int64(aba.c.Committee.LowThreshold()) {
+		//再广播一次自己没有广播过的值
 		aba.valMutex.Lock()
 		if val.Val%2 == 1 {
 			aba.valOdd[val.Round] = val.Val
@@ -84,13 +88,16 @@ func (aba *ABA) ProcessABAVal(val *ABAVal) {
 			aba.valEven[val.Round] = val.Val
 		}
 		aba.valMutex.Unlock()
-		aba.abaCallBack <- &ABABack{
-			Typ:    ABA_INVOKE,
-			Epoch:  aba.Epoch,
-			Round:  aba.Round,
-			Val:    val.Val,
-			Leader: val.Leader,
-		}
+		abaVal, _ := NewABAVal(aba.c.Name, val.Leader, aba.Epoch, aba.Round, val.Val, aba.c.SigService)
+		aba.c.Transimtor.Send(aba.c.Name, core.NONE, abaVal)
+		aba.c.Transimtor.RecvChannel() <- abaVal
+		// aba.abaCallBack <- &ABABack{
+		// 	Typ:    ABA_INVOKE,
+		// 	Epoch:  aba.Epoch,
+		// 	Round:  aba.Round,
+		// 	Val:    val.Val,
+		// 	Leader: val.Leader,
+		// }
 	} else if cnt == int64(aba.c.Committee.HightThreshold()) {
 		aba.flagMutex.Lock()
 		defer aba.flagMutex.Unlock()
@@ -209,10 +216,12 @@ func (aba *ABA) ProcessCoin(inRound int64, coin int64, Leader core.NodeID) {
 		aba.c.Transimtor.Send(aba.c.Name, core.NONE, abaVal)
 		aba.c.Transimtor.RecvChannel() <- abaVal
 	} else if (okYes && coin == 0) || (okNo && coin == 1) {
+		logger.Debug.Printf("aba halt message is ready to create\n")
 		halt, _ := NewABAHalt(aba.c.Name, Leader, aba.Epoch, inRound, nextinput, aba.c.SigService)
 		aba.c.Transimtor.Send(aba.c.Name, core.NONE, halt)
 		aba.c.Transimtor.RecvChannel() <- halt
 	} else { // next round with self
+		logger.Debug.Printf("enter next aba round\n")
 		var abaVal *ABAVal
 		if okYes {
 			abaVal, _ = NewABAVal(aba.c.Name, Leader, aba.Epoch, inRound+1, nextodd, aba.c.SigService)
